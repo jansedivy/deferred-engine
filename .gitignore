@@ -1,0 +1,8 @@
+build/
+CMakeFiles/
+CMakeScripts/
+CMakeCache.txt
+debugger.xcodeproj
+Makefile
+tags
+cmake_install.cmake
