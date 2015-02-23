@@ -47,13 +47,13 @@ Mesh *Primitives::getSphere() {
       int first = (latNumber * (longitudeBands + 1)) + longNumber;
       int second = first + longitudeBands + 1;
 
+      mesh->indices.push_back(first + 1);
+      mesh->indices.push_back(second);
       mesh->indices.push_back(first);
-      mesh->indices.push_back(second);
-      mesh->indices.push_back(first + 1);
 
-      mesh->indices.push_back(second);
-      mesh->indices.push_back(second + 1);
       mesh->indices.push_back(first + 1);
+      mesh->indices.push_back(second + 1);
+      mesh->indices.push_back(second);
     }
   }
 

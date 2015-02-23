@@ -11,7 +11,7 @@ class Camera {
   public:
     Camera();
     glm::vec3 position;
-    glm::quat rotation;
+    glm::vec3 rotation;
     glm::mat4 viewMatrix;
     glm::vec3 right;
     glm::vec3 forward;

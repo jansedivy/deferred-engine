@@ -9,6 +9,8 @@
 #include "camera.h"
 #include "gbuffer.h"
 #include "shader_manager.h"
+#include "light.h"
+#include "profiler.h"
 
 class Renderer {
   public:
@@ -19,11 +21,18 @@ class Renderer {
     void debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh);
     void renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh);
 
+    void drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Mesh *fullscreenMesh, Camera *camera);
+
+    void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera);
+    void renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
+
     void useMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);
-    Shader *shader;
+
     void drawSkybox(Skybox *skybox, Camera *camera);
     ShaderManager shaderManager;
+
+    GBuffer gbuffer;
 
     int width;
     int height;

@@ -24,3 +24,9 @@ void ShaderManager::load(const char *name, const char *path) {
 
   shaders[stringName] = new Shader(vertexName, fragName, vertexSource, fragmentSource);
 }
+
+void ShaderManager::use(const char *name) {
+  Shader *shader = get(name);
+  shader->use();
+  current = shader;
+}

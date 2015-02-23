@@ -42,8 +42,6 @@ class Game {
 
     void render();
     void renderFromCamera(Camera camera);
-    void renderLights();
-    void renderPointLights();
     void renderDirectionalLights();
     void renderPointLight(Light *light);
 
@@ -53,6 +51,7 @@ class Game {
     Primitives primitives;
     Renderer renderer;
     Camera camera;
+
     Loader loader;
     const Uint8 *keyboardState;
 
@@ -66,9 +65,8 @@ class Game {
     bool renderWireframe;
 
     Skybox skybox;
-    GBuffer gbuffer;
     DebugDraw debugDraw;
-    Profiler profile;
+    Profiler profiler;
 
     int width;
     int height;

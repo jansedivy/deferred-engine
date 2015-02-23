@@ -10,6 +10,10 @@ class Plane {
       distance *= scale;
     }
 
+    float distanceTo(glm::vec3 position) {
+      return glm::dot(normal, position) + distance;
+    }
+
   public:
     glm::vec3 normal;
     float distance;

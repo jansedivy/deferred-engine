@@ -11,6 +11,9 @@ class ShaderManager {
   public:
     Shader* get(const char *name);
     void load(const char *name, const char *path);
+    void use(const char *name);
+
+    Shader *current;
 
   private:
     std::map<std::string, Shader*> shaders;

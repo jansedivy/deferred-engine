@@ -16,8 +16,9 @@ void Renderer::init(int w, int h) {
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
 
-  /* glClearColor(31.0f/255.0f, 0.0f, 54.0f/255.0f, 1.0f); */
   glClearColor(0.0, 0.0, 0.0, 1.0);
+
+  gbuffer.init(width, height);
 }
 
 void Renderer::populateBuffers(Mesh *mesh) {
@@ -49,19 +50,19 @@ void Renderer::useMesh(Mesh *mesh) {
 
   currentMesh = mesh;
 
-  if (shader->attributes.count("normals")) {
+  if (shaderManager.current->attributes.count("normals")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.normals);
-    glVertexAttribPointer(shader->attributes["normals"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shaderManager.current->attributes["normals"], 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
-  if (shader->attributes.count("uv")) {
+  if (shaderManager.current->attributes.count("uv")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.uvs);
-    glVertexAttribPointer(shader->attributes["uv"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shaderManager.current->attributes["uv"], 2, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
-  if (shader->attributes.count("position")) {
+  if (shaderManager.current->attributes.count("position")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.vertices);
-    glVertexAttribPointer(shader->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shaderManager.current->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->buffers.indices);
@@ -79,8 +80,7 @@ void Renderer::draw(bool wireframe) {
 void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   glDisable(GL_DEPTH_TEST);
   glDepthMask(GL_FALSE);
-  shader = shaderManager.get("skybox");
-  shader->use();
+  shaderManager.use("skybox");
 
   glm::mat4 projection = glm::perspective(glm::radians(camera->fov), camera->aspectRatio, camera->near, camera->far);
   glm::mat4 view;
@@ -89,17 +89,17 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   view = glm::rotate(view, camera->rotation.y, glm::vec3(0.0, 1.0, 0.0));
   view = glm::rotate(view, camera->rotation.z, glm::vec3(0.0, 0.0, 1.0));
 
-  shader->mat4("view", view);
-  shader->mat4("projection", projection);
-  shader->cubemap("uSampler", skybox->texture->id, 0);
+  shaderManager.current->mat4("view", view);
+  shaderManager.current->mat4("projection", projection);
+  shaderManager.current->cubemap("uSampler", skybox->texture->id, 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, skybox->mesh->buffers.vertices);
-  glVertexAttribPointer(shader->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(shaderManager.current->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skybox->mesh->buffers.indices);
   glDrawElements(GL_TRIANGLES, skybox->mesh->indices.size(), GL_UNSIGNED_INT, 0);
 
-  shader->disable();
+  shaderManager.current->disable();
 
   glDepthMask(GL_TRUE);
   glEnable(GL_DEPTH_TEST);
@@ -107,37 +107,126 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
 
 void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
   glDisable(GL_CULL_FACE);
-  shader = shaderManager.get("fullscreen");
-  shader->use();
+  shaderManager.use("fullscreen");
     useMesh(fullscreenMesh);
     glViewport(0, 0, width, height);
-    shader->texture("texture", texture, 0);
+    shaderManager.current->texture("texture", texture, 0);
     draw();
-  shader->disable();
+  shaderManager.current->disable();
 }
 
 void Renderer::debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh) {
-  shader = shaderManager.get("fullscreen");
-  shader->use();
+  shaderManager.use("fullscreen");
 
     useMesh(fullscreenMesh);
     framebuffer->bindForReading();
 
     glViewport(0, 0, width/2, height/2);
-    shader->texture("texture", framebuffer->texture, 0);
+    shaderManager.current->texture("texture", framebuffer->texture, 0);
     draw();
 
     glViewport(width/2, 0, width/2, height/2);
-    shader->texture("texture", framebuffer->normalTexture, 0);
+    shaderManager.current->texture("texture", framebuffer->normalTexture, 0);
     draw();
 
     glViewport(0, height/2, width/2, height/2);
-    shader->texture("texture", framebuffer->positionTexture, 0);
+    shaderManager.current->texture("texture", framebuffer->positionTexture, 0);
     draw();
 
     glViewport(width/2, height/2, width/2, height/2);
-    shader->texture("texture", framebuffer->depthTexture, 0);
+    shaderManager.current->texture("texture", framebuffer->depthTexture, 0);
     draw();
 
-  shader->disable();
+  shaderManager.current->disable();
+}
+
+void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Mesh *fullscreenMesh, Camera *camera) {
+  profiler->start("Lights");
+
+  gbuffer.bindForLight();
+
+  glEnable(GL_BLEND);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_ONE, GL_ONE);
+
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  gbuffer.bindForLight();
+  renderPointLights(lights, profiler, sphere, camera);
+  renderDirectionalLights(lights, profiler, fullscreenMesh, camera);
+
+  glDisable(GL_BLEND);
+
+  profiler->end();
+}
+
+void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera) {
+  profiler->start("Point Lights");
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT);
+  glDisable(GL_DEPTH_TEST);
+
+  shaderManager.use("pointshader");
+
+  useMesh(sphere);
+
+  glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
+
+  shaderManager.current->mat4("invProjection", invProjection);
+  shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
+
+  shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
+  shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
+  shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
+  shaderManager.current->texture("depthTexture", gbuffer.depthTexture, 3);
+
+  for (auto it = lights->begin(); it != lights->end(); it++) {
+    if (it->type == kPoint) {
+      /* if (!camera.frustum.sphereInFrustum(it->position, it->radius)){ */ 
+      /*   break; */
+      /* } */
+
+      glm::mat4 modelView;
+      modelView = glm::translate(modelView, it->position);
+      modelView = glm::scale(modelView, glm::vec3(it->radius));
+      shaderManager.current->mat4("uMVMatrix", modelView);
+
+      shaderManager.current->vec3("lightPosition", it->position);
+      shaderManager.current->fl("lightRadius", it->radius);
+      shaderManager.current->vec3("lightColor", it->color);
+
+      draw();
+    }
+  }
+
+  shaderManager.current->disable();
+
+  profiler->end();
+}
+
+void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera) {
+  profiler->start("Directional Lights");
+
+  glDisable(GL_CULL_FACE);
+
+  shaderManager.use("directionlight");
+
+  shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
+  shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
+  shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
+
+  useMesh(fullscreenMesh);
+
+  for (auto it = lights->begin(); it != lights->end(); it++) {
+    if (it->type == kDirectional) {
+      shaderManager.current->vec3("lightColor", it->color);
+      shaderManager.current->vec3("lightDirection", it->direction);
+      draw();
+    }
+  }
+
+  shaderManager.current->disable();
+
+  profiler->end();
 }

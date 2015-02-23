@@ -27,14 +27,13 @@ Game::Game() {
   SDL_GL_SetSwapInterval(-1);
 
   renderer.init(width, height);
-  gbuffer.init(width, height);
 
   camera.setAspect((float)width/(float)height);
   camera.position[0] -= 20.0f;
   camera.position[1] += 30.0f;
   camera.position[2] -= 20.0f;
 
-  profile.start("loading shaders");
+  profiler.start("loading shaders");
   renderer.shaderManager.load("skybox", "skybox");
   renderer.shaderManager.load("directionlight", "directionlight");
   renderer.shaderManager.load("pointshader", "pointshader");
@@ -42,25 +41,28 @@ Game::Game() {
   renderer.shaderManager.load("basic", "basic");
   renderer.shaderManager.load("color", "color");
   renderer.shaderManager.load("fullscreen", "fullscreen");
-  profile.end();
+  profiler.end();
 
-  profile.start("loading textures");
-  loader.addTexture("AM3.jpg");
+  profiler.start("loading textures");
+  /* loader.addTexture("AM3.jpg"); */
   loader.addTexture("img.png");
   loader.addTexture("planet.png");
+  /* loader.addTexture("normal.jpg"); */
+  /* loader.addTexture("bricks.jpg"); */
+  loader.addTexture("marble1.jpg");
 
-  std::vector<const char*> faces;
-  faces.push_back("right.png");
-  faces.push_back("left.png");
-  faces.push_back("top.png");
-  faces.push_back("bottom.png");
-  faces.push_back("back.png");
-  faces.push_back("front.png");
+  /* std::vector<const char*> faces; */
+  /* faces.push_back("right.png"); */
+  /* faces.push_back("left.png"); */
+  /* faces.push_back("top.png"); */
+  /* faces.push_back("bottom.png"); */
+  /* faces.push_back("back.png"); */
+  /* faces.push_back("front.png"); */
 
-  loader.addCubemap("galaxySkybox", &faces);
+  /* loader.addCubemap("galaxySkybox", &faces); */
 
   loader.startLoading();
-  profile.end();
+  profiler.end();
 
   primitives.renderer = &renderer;
 
@@ -68,22 +70,22 @@ Game::Game() {
 
   fullscreenMesh = primitives.getQuad();
 
-  skybox.texture = loader.get("galaxySkybox");
-  skybox.mesh = primitives.getCube();
+  /* skybox.texture = loader.get("galaxySkybox"); */
+  /* skybox.mesh = primitives.getCube(); */
 
-  Texture *asteroidTexture = loader.get("AM3.jpg");
+  Texture *asteroidTexture = loader.get("marble1.jpg");
   Texture *texture = loader.get("img.png");
   Texture *planetTexture = loader.get("planet.png");
 
-  profile.start("loading meshes");
+  profiler.start("loading meshes");
   std::vector<Mesh*> meshes;
   loader.loadMesh("mesh.obj", &meshes, &renderer);
 
   std::vector<Mesh*> sponza;
   loader.loadMesh("sponza.obj", &sponza, &renderer);
-  profile.end();
+  profiler.end();
 
-  profile.start("adding objects to scene");
+  profiler.start("adding objects to scene");
   for (auto it = sponza.begin(); it != sponza.end(); it++) {
     Entity entity;
     entity.texture = asteroidTexture;
@@ -209,7 +211,7 @@ Game::Game() {
     }
   }
 
-  profile.end();
+  profiler.end();
 
   running = true;
   oldTime = SDL_GetTicks();
@@ -228,10 +230,10 @@ void Game::tick() {
     frameTime = 0;
   }
 
-  profile.start("Frame");
+  profiler.start("Frame");
   update(diff);
   render();
-  profile.end();
+  profiler.end();
 }
 
 void Game::update(float time) {
@@ -247,7 +249,7 @@ void Game::update(float time) {
         running = false;
 
         // TODO(sedivy): move to destructor?
-        profile.exportData();
+        profiler.exportData();
         break;
       case SDL_MOUSEBUTTONDOWN:
         /* debugDraw.addLine(camera.position + camera.forward * 2.0f, camera.position + camera.forward * 1000.0f, 100); */
@@ -268,7 +270,7 @@ void Game::update(float time) {
     }
   }
 
-  profile.start("Update");
+  profiler.start("Update");
   int relX, relY;
   SDL_GetRelativeMouseState(&relX, &relY);
   camera.rotation[0] += relY/100.0f;
@@ -319,7 +321,6 @@ void Game::update(float time) {
   }
 
   camera.updateMatrix();
-  /* printf("%f, %f, %f\n", camera.position.x, camera.position.y, camera.position.z); */
 
   for (auto it = entities.begin(); it != entities.end(); ++it) {
     if (it->type == kPlanet) {
@@ -331,12 +332,15 @@ void Game::update(float time) {
       it->position[1] = position * 10.0f;
     }
   }
-  profile.end();
+  profiler.end();
 }
 
 void Game::renderFromCamera(Camera camera) {
-  gbuffer.bindForWriting();
-  glViewport(0, 0, gbuffer.width, gbuffer.height);
+  profiler.start("GBuffer");
+  glEnable(GL_STENCIL_TEST);
+
+  renderer.gbuffer.bindForWriting();
+  glViewport(0, 0, renderer.gbuffer.width, renderer.gbuffer.height);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -348,10 +352,11 @@ void Game::renderFromCamera(Camera camera) {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  renderer.shader = renderer.shaderManager.get("basic");
-  renderer.shader->use();
+  renderer.shaderManager.use("basic");
+  profiler.start("Render entities");
 
-  profile.start("Render entities");
+  Texture *textureCache[8];
+
   for (auto it = entities.begin(); it != entities.end(); ++it) {
     /* float radius = it->getBoundingRadius(); */
     /* if (!camera.frustum.sphereInFrustum(it->position, radius)) { */
@@ -368,131 +373,48 @@ void Game::renderFromCamera(Camera camera) {
 
     glm::mat3 normal = glm::inverseTranspose(glm::mat3(modelView));
 
-    renderer.shader->texture("uSampler", it->texture->id, 0);
-    renderer.shader->mat3("uNMatrix", normal);
-    renderer.shader->mat4("uPMatrix", camera.viewMatrix);
-    renderer.shader->mat4("uMVMatrix", modelView);
+    if (textureCache[0] != it->texture) {
+      textureCache[0] = it->texture;
+      renderer.shaderManager.current->texture("uSampler", it->texture->id, 0);
+    }
+
+    renderer.shaderManager.current->mat3("uNMatrix", normal);
+    renderer.shaderManager.current->mat4("uPMatrix", camera.viewMatrix);
+    renderer.shaderManager.current->mat4("uMVMatrix", modelView);
 
     renderer.useMesh(it->mesh);
     renderer.draw(renderWireframe);
   }
-  profile.end();
+  profiler.end();
 
-  renderer.shader->disable();
+  renderer.shaderManager.current->disable();
 
-  renderer.shader = renderer.shaderManager.get("debug");
-  renderer.shader->use();
-    renderer.shader->mat4("uPMatrix", camera.viewMatrix);
+  renderer.shaderManager.use("debug");
+    renderer.shaderManager.current->mat4("uPMatrix", camera.viewMatrix);
     debugDraw.draw();
-  renderer.shader->disable();
+  renderer.shaderManager.current->disable();
 
   glDepthMask(GL_FALSE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
+  profiler.end();
 }
 
 void Game::render() {
-  profile.start("Render");
-  // renderer.drawSkybox(&skybox, &camera);
-  profile.start("GBuffer");
+  profiler.start("Render");
+
   renderFromCamera(camera);
-  profile.end();
+  renderer.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
 
-  profile.start("Lights");
-  renderLights();
-  profile.end();
+  renderer.gbuffer.bindForReading();
+  renderer.renderFullscreenTexture(renderer.gbuffer.finalTexture, fullscreenMesh);
 
-  gbuffer.bindForReading();
-  renderer.renderFullscreenTexture(gbuffer.finalTexture, fullscreenMesh);
-
-  profile.end();
+  profiler.end();
 
   if (keyboardState[SDL_SCANCODE_O]) {
-    renderer.debugRendererGBuffer(&gbuffer, fullscreenMesh);
+    renderer.debugRendererGBuffer(&renderer.gbuffer, fullscreenMesh);
   }
 
   SDL_GL_SwapWindow(window);
 }
 
-void Game::renderLights() {
-  gbuffer.bindForLight();
-
-  glEnable(GL_BLEND);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_ONE);
-
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  gbuffer.bindForLight();
-  renderPointLights();
-  renderDirectionalLights();
-
-  glDisable(GL_BLEND);
-}
-
-void Game::renderDirectionalLights() {
-  profile.start("Directional Lights");
-
-  renderer.shader = renderer.shaderManager.get("directionlight");
-  renderer.shader->use();
-
-  renderer.shader->texture("diffuseTexture", gbuffer.texture, 0);
-  renderer.shader->texture("normalTexture", gbuffer.normalTexture, 1);
-  renderer.shader->texture("positionTexture", gbuffer.positionTexture, 2);
-
-  renderer.useMesh(fullscreenMesh);
-
-  for (auto it = lights.begin(); it != lights.end(); it++) {
-    if (it->type == kDirectional) {
-      renderer.shader->vec3("lightColor", it->color);
-      renderer.shader->vec3("lightDirection", it->direction);
-      renderer.draw();
-    }
-  }
-
-  renderer.shader->disable();
-
-  profile.end();
-};
-
-void Game::renderPointLights() {
-  profile.start("Point Lights");
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glDisable(GL_DEPTH_TEST);
-
-  renderer.shader = renderer.shaderManager.get("pointshader");
-  renderer.shader->use();
-
-  renderer.useMesh(primitives.getSphere());
-
-  glm::mat4 invProjection = glm::inverse(camera.viewMatrix);
-
-  renderer.shader->mat4("invProjection", invProjection);
-  renderer.shader->mat4("uPMatrix", camera.viewMatrix);
-
-  renderer.shader->texture("diffuseTexture", gbuffer.texture, 0);
-  renderer.shader->texture("normalTexture", gbuffer.normalTexture, 1);
-  renderer.shader->texture("positionTexture", gbuffer.positionTexture, 2);
-  renderer.shader->texture("depthTexture", gbuffer.depthTexture, 3);
-
-  for (auto it = lights.begin(); it != lights.end(); it++) {
-    if (it->type == kPoint) {
-      glm::mat4 modelView;
-      modelView = glm::translate(modelView, it->position);
-      modelView = glm::scale(modelView, glm::vec3(it->radius));
-      renderer.shader->mat4("uMVMatrix", modelView);
-
-      renderer.shader->vec3("lightPosition", it->position);
-      renderer.shader->fl("lightRadius", it->radius);
-      renderer.shader->vec3("lightColor", it->color);
-
-      renderer.draw();
-    }
-  }
-
-  renderer.shader->disable();
-
-  profile.end();
-}

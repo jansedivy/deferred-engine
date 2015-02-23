@@ -7,6 +7,5 @@ float Entity::getBoundingRadius() {
 
   float result = fmax(fmax(x, y), z);
 
-  /* return result; */
-  return 10000.0f;
+  return result;
 }
