@@ -338,8 +338,6 @@ void Game::renderFromCamera(Camera camera) {
   gbuffer.bindForWriting();
   glViewport(0, 0, gbuffer.width, gbuffer.height);
 
-  glDisable(GL_STENCIL_TEST);
-
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 
@@ -425,24 +423,18 @@ void Game::renderLights() {
 
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glEnable(GL_STENCIL_TEST);
+  gbuffer.bindForLight();
   renderPointLights();
-  glDisable(GL_STENCIL_TEST);
-
   renderDirectionalLights();
 
   glDisable(GL_BLEND);
 }
 
 void Game::renderDirectionalLights() {
-  glEnable(GL_BLEND);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_ONE);
+  profile.start("Directional Lights");
 
   renderer.shader = renderer.shaderManager.get("directionlight");
   renderer.shader->use();
-
-  gbuffer.bindForLight();
 
   renderer.shader->texture("diffuseTexture", gbuffer.texture, 0);
   renderer.shader->texture("normalTexture", gbuffer.normalTexture, 1);
@@ -459,88 +451,48 @@ void Game::renderDirectionalLights() {
   }
 
   renderer.shader->disable();
+
+  profile.end();
 };
 
-void Game::renderPointLight(Light *light) {
-  renderer.shader = renderer.shaderManager.get("pointshader");
-  renderer.shader->use();
-
-  glDrawBuffer(GL_COLOR_ATTACHMENT4);
-
-  glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-  glDisable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_ONE);
+void Game::renderPointLights() {
+  profile.start("Point Lights");
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
+  glDisable(GL_DEPTH_TEST);
+
+  renderer.shader = renderer.shaderManager.get("pointshader");
+  renderer.shader->use();
 
   renderer.useMesh(primitives.getSphere());
-  glm::mat4 modelView;
-  modelView = glm::translate(modelView, light->position);
-  modelView = glm::scale(modelView, glm::vec3(light->radius));
+
   glm::mat4 invProjection = glm::inverse(camera.viewMatrix);
+
+  renderer.shader->mat4("invProjection", invProjection);
+  renderer.shader->mat4("uPMatrix", camera.viewMatrix);
 
   renderer.shader->texture("diffuseTexture", gbuffer.texture, 0);
   renderer.shader->texture("normalTexture", gbuffer.normalTexture, 1);
   renderer.shader->texture("positionTexture", gbuffer.positionTexture, 2);
   renderer.shader->texture("depthTexture", gbuffer.depthTexture, 3);
-  renderer.shader->mat4("uPMatrix", camera.viewMatrix);
-  renderer.shader->mat4("invProjection", invProjection);
-  renderer.shader->mat4("uMVMatrix", modelView);
-  renderer.shader->vec3("lightPosition", light->position);
-  renderer.shader->fl("lightRadius", light->radius);
-  renderer.shader->vec3("lightColor", light->color);
-  renderer.draw();
-
-  renderer.shader->disable();
-
-  glDisable(GL_BLEND);
-  glCullFace(GL_BACK);
-  glDisable(GL_CULL_FACE);
-}
-
-void Game::setupStenciForLight(Light *light) {
-  glDrawBuffer(GL_NONE);
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
-
-  glStencilFunc(GL_ALWAYS, 0, 0);
-  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-
-  glClear(GL_STENCIL_BUFFER_BIT);
-
-  renderer.shader = renderer.shaderManager.get("color");
-  renderer.shader->use();
-
-    renderer.shader->mat4("uPMatrix", camera.viewMatrix);
-
-    renderer.useMesh(primitives.getSphere());
-
-    glm::mat4 modelView;
-    modelView = glm::translate(modelView, light->position);
-    modelView = glm::scale(modelView, glm::vec3(light->radius));
-    renderer.shader->mat4("uMVMatrix", modelView);
-
-    renderer.draw();
-
-  renderer.shader->disable();
-}
-
-void Game::renderPointLights() {
-  profile.start("Point Lights");
-  gbuffer.bindForLight();
-  glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   for (auto it = lights.begin(); it != lights.end(); it++) {
     if (it->type == kPoint) {
-      Light light = *it;
-      setupStenciForLight(&light);
-      renderPointLight(&light);
+      glm::mat4 modelView;
+      modelView = glm::translate(modelView, it->position);
+      modelView = glm::scale(modelView, glm::vec3(it->radius));
+      renderer.shader->mat4("uMVMatrix", modelView);
+
+      renderer.shader->vec3("lightPosition", it->position);
+      renderer.shader->fl("lightRadius", it->radius);
+      renderer.shader->vec3("lightColor", it->color);
+
+      renderer.draw();
     }
   }
+
+  renderer.shader->disable();
+
   profile.end();
 }
