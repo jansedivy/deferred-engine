@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "frustum.h"
+
 class Camera {
   public:
     Camera();
@@ -13,6 +15,8 @@ class Camera {
     glm::mat4 viewMatrix;
     glm::vec3 right;
     glm::vec3 forward;
+
+    Frustum frustum;
 
     float fov;
     float aspectRatio;

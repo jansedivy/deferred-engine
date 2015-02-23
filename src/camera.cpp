@@ -20,6 +20,8 @@ void Camera::updateMatrix() {
   viewMatrix = glm::rotate(viewMatrix, rotation.z, glm::vec3(0.0, 0.0, 1.0));
 
   viewMatrix = glm::translate(viewMatrix, (position * -1.0f));
+
+  frustum.setMatrix(viewMatrix);
 }
 
 void Camera::calculateRightMovement() {

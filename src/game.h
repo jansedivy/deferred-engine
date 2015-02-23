@@ -18,13 +18,14 @@
 #include "camera.h"
 #include "entity.h"
 #include "loader.h"
-#include "framebuffer.h"
+#include "gbuffer.h"
 #include "primitives.h"
 #include "texture.h"
 #include "skybox.h"
 #include "mesh.h"
 #include "debug_draw.h"
 #include "light.h"
+#include "profiler.h"
 
 #include "file_io.h"
 
@@ -39,10 +40,12 @@ class Game {
     void update(float time);
 
     void render();
-    void beginFrame();
-    void endFrame();
     void renderFromCamera(Camera camera);
     void renderLights();
+    void renderPointLights();
+    void renderDirectionalLights();
+    void renderPointLight(Light *light);
+    void setupStenciForLight(Light *light);
 
     bool running;
 
@@ -58,14 +61,14 @@ class Game {
 
     float totalTime = 0.0f;
 
-    FrameBuffer framebuffer;
     Mesh *fullscreenMesh;
     Texture *skyboxTexture;
     bool renderWireframe;
 
     Skybox skybox;
-
+    GBuffer gbuffer;
     DebugDraw debugDraw;
+    Profiler profile;
 
     int width;
     int height;

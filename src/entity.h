@@ -3,6 +3,7 @@
 #include <glm/vec3.hpp>
 #include "mesh.h"
 #include "texture.h"
+#include <cmath>
 
 enum EntityType {
   kPlanet,
@@ -20,9 +21,12 @@ class Entity {
     glm::vec3 color;
     glm::vec3 scale;
     Texture *texture;
+
     int x;
     int y;
 
     AABB aabb;
     EntityType type;
+
+    float getBoundingRadius();
 };

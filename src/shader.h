@@ -37,20 +37,12 @@ class Shader {
 
     GLuint program;
 
-    std::string vertexPath;
-    std::string fragmentPath;
-
-    std::string vertexSource;
-    std::string fragmentSource;
-
     void tryReload();
 
     time_t lastWriteVertex;
     time_t lastWriteFragment;
 
   private:
-    void createProgram();
-    void reload();
     void checkError(int shader, bool isProgram);
 };
 

@@ -130,12 +130,17 @@ void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *re
     for (int i=0; i<scene->mNumMeshes; i++) {
       aiMesh *meshData = scene->mMeshes[i];
 
+      float radius = 0.0f;
       Mesh *mesh = new Mesh();
 
       for (int l=0; l<meshData->mNumVertices; l++) {
         mesh->vertices.push_back(meshData->mVertices[l].x);
         mesh->vertices.push_back(meshData->mVertices[l].y);
         mesh->vertices.push_back(meshData->mVertices[l].z);
+
+        radius = fmax(radius, abs(meshData->mVertices[l].x));
+        radius = fmax(radius, abs(meshData->mVertices[l].y));
+        radius = fmax(radius, abs(meshData->mVertices[l].z));
 
         mesh->normals.push_back(meshData->mNormals[l].x);
         mesh->normals.push_back(meshData->mNormals[l].y);
@@ -156,6 +161,8 @@ void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *re
       }
 
       renderer->populateBuffers(mesh);
+
+      mesh->boundingRadius = radius;
 
       meshes->push_back(mesh);
     }

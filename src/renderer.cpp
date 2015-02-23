@@ -79,7 +79,7 @@ void Renderer::draw(bool wireframe) {
 void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   glDisable(GL_DEPTH_TEST);
   glDepthMask(GL_FALSE);
-  shader = &skyboxShader;
+  shader = shaderManager.get("skybox");
   shader->use();
 
   glm::mat4 projection = glm::perspective(glm::radians(camera->fov), camera->aspectRatio, camera->near, camera->far);
@@ -105,13 +105,24 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::debugRenderFrameBuffer(FrameBuffer *framebuffer, Mesh *fullscreenMesh) {
-  shader = &fullscreen;
+void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
+  glDisable(GL_CULL_FACE);
+  shader = shaderManager.get("fullscreen");
+  shader->use();
+    useMesh(fullscreenMesh);
+    glViewport(0, 0, width, height);
+    shader->texture("texture", texture, 0);
+    draw();
+  shader->disable();
+}
+
+void Renderer::debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh) {
+  shader = shaderManager.get("fullscreen");
   shader->use();
 
     useMesh(fullscreenMesh);
-
     framebuffer->bindForReading();
+
     glViewport(0, 0, width/2, height/2);
     shader->texture("texture", framebuffer->texture, 0);
     draw();

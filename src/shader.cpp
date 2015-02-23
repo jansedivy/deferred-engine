@@ -4,13 +4,39 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath, std::string ver
   lastWriteVertex  = FileIO::getLastWriteTime(vertexPath.c_str());
   lastWriteFragment = FileIO::getLastWriteTime(fragmentPath.c_str());
 
-  this->vertexPath = vertexPath;
-  this->fragmentPath = fragmentPath;
+  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  const char *vertex = vertexSource.c_str();
+  glShaderSource(vertexShader, 1, &vertex, NULL);
+  glCompileShader(vertexShader);
+  checkError(vertexShader, false);
 
-  this->fragmentSource = fragmentSource;
-  this->vertexSource = vertexSource;
+  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  const char *fragment = fragmentSource.c_str();
+  glShaderSource(fragmentShader, 1, &fragment, NULL);
+  glCompileShader(fragmentShader);
+  checkError(fragmentShader, false);
 
-  createProgram();
+  program = glCreateProgram();
+  glAttachShader(program, vertexShader);
+  glAttachShader(program, fragmentShader);
+
+  glLinkProgram(program);
+  checkError(program, true);
+
+  int length, size, count;
+  char name[256];
+  GLenum type = 0;
+  glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &count);
+  for (int i=0; i<count; i++) {
+    glGetActiveAttrib(program, GLuint(i), sizeof(name), &length, &size, &type, name);
+    addAttribute(name);
+  }
+
+  glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+  for (int i=0; i<count; i++) {
+    glGetActiveUniform(program, GLuint(i), sizeof(name), &length, &size, &type, name);
+    addUniform(name);
+  }
 }
 
 void Shader::use() {
@@ -105,56 +131,12 @@ void Shader::addUniform(const char *name) {
 }
 
 void Shader::tryReload() {
-  time_t nowVertex = FileIO::getLastWriteTime(vertexPath.c_str());
-  time_t nowFragment = FileIO::getLastWriteTime(fragmentPath.c_str());
+  /* time_t nowVertex = FileIO::getLastWriteTime(vertexPath.c_str()); */
+  /* time_t nowFragment = FileIO::getLastWriteTime(fragmentPath.c_str()); */
 
-  if (nowVertex > lastWriteVertex || nowFragment > lastWriteFragment) {
-    lastWriteVertex = nowVertex;
-    lastWriteFragment = nowFragment;
-    reload();
-  }
-}
-
-void Shader::reload() {
-  printf("Reloading\n");
-  createProgram();
-}
-
-void Shader::createProgram() {
-  attributes.clear();
-  uniforms.clear();
-
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  const char *vertex = vertexSource.c_str();
-  glShaderSource(vertexShader, 1, &vertex, NULL);
-  glCompileShader(vertexShader);
-  checkError(vertexShader, false);
-
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  const char *fragment = fragmentSource.c_str();
-  glShaderSource(fragmentShader, 1, &fragment, NULL);
-  glCompileShader(fragmentShader);
-  checkError(fragmentShader, false);
-
-  program = glCreateProgram();
-  glAttachShader(program, vertexShader);
-  glAttachShader(program, fragmentShader);
-
-  glLinkProgram(program);
-  checkError(program, true);
-
-  int length, size, count;
-  char name[256];
-  GLenum type = 0;
-  glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &count);
-  for (int i=0; i<count; i++) {
-    glGetActiveAttrib(program, GLuint(i), sizeof(name), &length, &size, &type, name);
-    addAttribute(name);
-  }
-
-  glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
-  for (int i=0; i<count; i++) {
-    glGetActiveUniform(program, GLuint(i), sizeof(name), &length, &size, &type, name);
-    addUniform(name);
-  }
+  /* if (nowVertex > lastWriteVertex || nowFragment > lastWriteFragment) { */
+  /*   lastWriteVertex = nowVertex; */
+  /*   lastWriteFragment = nowFragment; */
+  /*   /1* reload(); *1/ */
+  /* } */
 }

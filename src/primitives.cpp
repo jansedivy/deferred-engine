@@ -59,6 +59,8 @@ Mesh *Primitives::getSphere() {
 
   renderer->populateBuffers(mesh);
 
+  mesh->boundingRadius = radius;
+
   sphere = mesh;
 
   return mesh;
@@ -143,6 +145,7 @@ Mesh* Primitives::getCube() {
   mesh->uv.assign(std::begin(uv), std::end(uv));
 
   renderer->populateBuffers(mesh);
+  mesh->boundingRadius = 1.0;
 
   cube = mesh;
 

@@ -8,7 +8,6 @@ uniform sampler2D depthTexture;
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
 uniform vec3 lightPosition;
-uniform vec3 camera;
 uniform mat4 invProjection;
 uniform float lightRadius;
 
@@ -17,7 +16,7 @@ out vec4 fragColor;
 void main() {
   vec2 uv = gl_FragCoord.xy / vec2(1280.0, 720.0);
 
-  vec3 normalColor = texture(normalTexture, uv).xyz;
+  vec3 normalColor = normalize(texture(normalTexture, uv).xyz * 2.0 - 1.0);
   vec3 diffuseColor = texture(diffuseTexture, uv).xyz;
   vec3 positionColor = texture(positionTexture, uv).xyz;
   float depth = texture(depthTexture, uv).x;
@@ -39,8 +38,4 @@ void main() {
   vec3 final_lighting = attenuation * (diffuse);
 
   fragColor = vec4(final_lighting, 1.0);
-
-  /* fragColor = vec4(diffuseColor, 1.0) / 2.0; */
-
-  /*   fragColor = ambient; */
 }

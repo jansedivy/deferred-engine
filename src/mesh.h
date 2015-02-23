@@ -17,6 +17,7 @@ struct Mesh {
   std::vector<float> normals;
   std::vector<float> uv;
   std::vector<GLuint> indices;
+  float boundingRadius;
 
   MeshBuffers buffers;
 };

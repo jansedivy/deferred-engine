@@ -7,7 +7,8 @@
 #include "mesh.h"
 #include "skybox.h"
 #include "camera.h"
-#include "framebuffer.h"
+#include "gbuffer.h"
+#include "shader_manager.h"
 
 class Renderer {
   public:
@@ -15,19 +16,14 @@ class Renderer {
     void init(int w, int h);
 
     void draw(bool wireframe=false);
-    void debugRenderFrameBuffer(FrameBuffer *framebuffer, Mesh *fullscreenMesh);
+    void debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh);
+    void renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh);
 
     void useMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);
     Shader *shader;
     void drawSkybox(Skybox *skybox, Camera *camera);
-
-    Shader normalShader;
-    Shader directionShader;
-    Shader pointShader;
-    Shader fullscreen;
-    Shader skyboxShader;
-    Shader debugShader;
+    ShaderManager shaderManager;
 
     int width;
     int height;
