@@ -34,13 +34,13 @@ Game::Game() {
   camera.position[2] -= 20.0f;
 
   profiler.start("loading shaders");
-  renderer.shaderManager.load("skybox", "skybox");
-  renderer.shaderManager.load("directionlight", "directionlight");
-  renderer.shaderManager.load("pointshader", "pointshader");
-  renderer.shaderManager.load("debug", "debug");
-  renderer.shaderManager.load("basic", "basic");
-  renderer.shaderManager.load("color", "color");
-  renderer.shaderManager.load("fullscreen", "fullscreen");
+  renderer.shaderManager.load("skybox", "shaders/skybox");
+  renderer.shaderManager.load("directionlight", "shaders/directionlight");
+  renderer.shaderManager.load("pointshader", "shaders/pointshader");
+  renderer.shaderManager.load("debug", "shaders/debug");
+  renderer.shaderManager.load("basic", "shaders/basic");
+  renderer.shaderManager.load("color", "shaders/color");
+  renderer.shaderManager.load("fullscreen", "shaders/fullscreen");
   profiler.end();
 
   profiler.start("loading textures");

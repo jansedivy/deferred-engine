@@ -1,3 +1,5 @@
 #pragma once
 
-void showError(const char *title, const char *message);
+#include "common.h"
+
+void showError(const char* title, const char* format, ...);

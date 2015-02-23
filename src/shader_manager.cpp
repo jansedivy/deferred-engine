@@ -6,7 +6,7 @@ Shader* ShaderManager::get(const char *name) {
   if (it != shaders.end()) {
     return (it->second);
   } else {
-    showError("Error undefined shader", "Error undefined shader %s"); // name
+    showError("Error undefined shader", "Error undefined shader %s", name);
     exit(1);
   }
 
@@ -14,15 +14,15 @@ Shader* ShaderManager::get(const char *name) {
 }
 
 void ShaderManager::load(const char *name, const char *path) {
-  std::string stringName = name;
+  std::string stringPath = path;
 
-  std::string vertexName = stringName + ".vert";
-  std::string fragName = stringName + ".frag";
+  std::string vertexName = stringPath + ".vert";
+  std::string fragName = stringPath + ".frag";
 
   std::string vertexSource = FileIO::loadFile(vertexName.c_str());
   std::string fragmentSource = FileIO::loadFile(fragName.c_str());
 
-  shaders[stringName] = new Shader(vertexName, fragName, vertexSource, fragmentSource);
+  shaders[std::string(name)] = new Shader(vertexName, fragName, vertexSource, fragmentSource);
 }
 
 void ShaderManager::use(const char *name) {

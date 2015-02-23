@@ -4,7 +4,7 @@ Texture* Loader::get(const char *path) {
   if (textures.count(path)) {
     return textures[path];
   } else {
-    showError("Error getting texture", "Undefined texture %s"); // path
+    showError("Error getting texture", "Undefined texture %s", path);
     return NULL;
   }
 }
@@ -54,7 +54,7 @@ Texture* Loader::loadTexture(const char *path) {
 
   unsigned char *image = loadImageData(path, &width, &height);
   if (!image) {
-    showError("Error loading texture", "Error loading texture %s"); // path
+    showError("Error loading texture", "Error loading texture %s", path);
     return NULL;
   }
 
