@@ -46,7 +46,6 @@ class Game {
     void renderPointLights();
     void renderDirectionalLights();
     void renderPointLight(Light *light);
-    void setupStenciForLight(Light *light);
 
     bool running;
 
