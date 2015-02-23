@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include "common.h"
+
 class GBuffer {
   public:
     GLuint id;

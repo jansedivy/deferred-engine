@@ -9,3 +9,6 @@ inline void formatString(char* buf, int buf_size, const char* fmt, va_list args)
         buf[buf_size-1] = '\0';
     }
 }
+
+#define arrayCount(list) (sizeof(list) / sizeof(list[0]))
+

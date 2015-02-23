@@ -1,7 +1,4 @@
 #include "gbuffer.h"
-#include <stdio.h>
-
-#define arrayCount(list) (sizeof(list) / sizeof(list[0]))
 
 void GBuffer::init(int w, int h) {
   width = w;
