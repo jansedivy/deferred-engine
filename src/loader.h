@@ -11,6 +11,7 @@
 #include "texture.h"
 #include "mesh.h"
 #include "renderer.h"
+#include "error.h"
 
 #include <map>
 

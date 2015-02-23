@@ -1,8 +1,10 @@
 #pragma once
 
 #include "shader.h"
-#include <map>
 #include "file_io.h"
+#include "error.h"
+
+#include <map>
 #include <string>
 
 class ShaderManager {

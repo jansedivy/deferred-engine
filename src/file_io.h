@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "error.h"
 
 #include <sys/stat.h>
 

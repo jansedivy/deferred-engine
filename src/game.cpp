@@ -504,7 +504,6 @@ void Game::renderPointLight(Light *light) {
 
 void Game::setupStenciForLight(Light *light) {
   glDrawBuffer(GL_NONE);
-  /* gbuffer.bindForReading(); */
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 

@@ -114,7 +114,7 @@ void Shader::addAttribute(const char *name) {
   GLuint id = glGetAttribLocation(program, name);
 
   if (id == -1) {
-    fprintf(stderr, "Attribute \"%s\" is not found\n", name);
+    showError("Error undefined attribute", "Undefined attribute \"%s\""); // name
   }
 
   attributes[name] = id;
@@ -124,7 +124,7 @@ void Shader::addUniform(const char *name) {
   GLuint id = glGetUniformLocation(program, name);
 
   if (id == -1) {
-    fprintf(stderr, "Uniform \"%s\" is not found\n", name);
+    showError("Error undefined uniform", "Undefined uniform \"%s\""); // name
   }
 
   uniforms[name] = id;

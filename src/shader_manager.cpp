@@ -6,7 +6,8 @@ Shader* ShaderManager::get(const char *name) {
   if (it != shaders.end()) {
     return (it->second);
   } else {
-    fprintf(stderr, "Undefined shader %s", name);
+    showError("Error undefined shader", "Error undefined shader %s"); // name
+    exit(1);
   }
 
   return NULL;

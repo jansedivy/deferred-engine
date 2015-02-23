@@ -5,7 +5,7 @@ std::string FileIO::loadFile(const char *path) {
   std::ifstream fileStream(path, std::ios::in);
 
   if (!fileStream.is_open()) {
-    fprintf(stderr, "Could not read file %s. File does not exist.\n", path);
+    showError("Error loading file", "Could not read file %s. File does not exist."); // path
   }
 
   std::string line;

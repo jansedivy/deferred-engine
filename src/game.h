@@ -26,6 +26,7 @@
 #include "debug_draw.h"
 #include "light.h"
 #include "profiler.h"
+#include "error.h"
 
 #include "file_io.h"
 
