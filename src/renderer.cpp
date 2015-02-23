@@ -44,10 +44,6 @@ void Renderer::populateBuffers(Mesh *mesh) {
 }
 
 void Renderer::useMesh(Mesh *mesh) {
-  if (currentMesh && currentMesh == mesh) {
-    return;
-  }
-
   currentMesh = mesh;
 
   if (shaderManager.current->attributes.count("normals")) {
@@ -183,9 +179,9 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
     if (it->type == kPoint) {
-      /* if (!camera.frustum.sphereInFrustum(it->position, it->radius)){ */ 
-      /*   break; */
-      /* } */
+      if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {
+        continue;
+      }
 
       glm::mat4 modelView;
       modelView = glm::translate(modelView, it->position);

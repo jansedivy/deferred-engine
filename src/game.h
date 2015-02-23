@@ -41,7 +41,7 @@ class Game {
     void update(float time);
 
     void render();
-    void renderFromCamera(Camera camera);
+    void renderFromCamera(Camera *camera);
     void renderDirectionalLights();
     void renderPointLight(Light *light);
 

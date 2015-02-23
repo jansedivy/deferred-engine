@@ -128,7 +128,6 @@ Game::Game() {
           ((float)rand()/(float)RAND_MAX),
           ((float)rand()/(float)RAND_MAX)
           );
-      light.direction = glm::normalize(glm::vec3(1.0, -0.2, 0.4));
       lights.push_back(light);
     }
   }
@@ -195,8 +194,8 @@ Game::Game() {
     entities.push_back(entity);
   }
 
-  int xSize = 50;
-  int ySize = 50;
+  int xSize = 20;
+  int ySize = 20;
   for (int x=0; x<xSize; x++) {
     for (int y=0; y<ySize; y++) {
       Entity entity;
@@ -335,7 +334,7 @@ void Game::update(float time) {
   profiler.end();
 }
 
-void Game::renderFromCamera(Camera camera) {
+void Game::renderFromCamera(Camera *camera) {
   profiler.start("GBuffer");
   glEnable(GL_STENCIL_TEST);
 
@@ -357,12 +356,13 @@ void Game::renderFromCamera(Camera camera) {
 
   Texture *textureCache[8];
 
-  for (auto it = entities.begin(); it != entities.end(); ++it) {
-    /* float radius = it->getBoundingRadius(); */
-    /* if (!camera.frustum.sphereInFrustum(it->position, radius)) { */
-    /*   break; */
-    /* } */
+  renderer.shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
 
+  for (auto it = entities.begin(); it != entities.end(); ++it) {
+    float radius = it->getBoundingRadius();
+    if (!camera->frustum.sphereInFrustum(it->position, radius)) {
+      continue;
+    }
     glm::mat4 modelView;
 
     modelView = glm::translate(modelView, it->position);
@@ -379,18 +379,18 @@ void Game::renderFromCamera(Camera camera) {
     }
 
     renderer.shaderManager.current->mat3("uNMatrix", normal);
-    renderer.shaderManager.current->mat4("uPMatrix", camera.viewMatrix);
     renderer.shaderManager.current->mat4("uMVMatrix", modelView);
 
     renderer.useMesh(it->mesh);
     renderer.draw(renderWireframe);
   }
+
   profiler.end();
 
   renderer.shaderManager.current->disable();
 
   renderer.shaderManager.use("debug");
-    renderer.shaderManager.current->mat4("uPMatrix", camera.viewMatrix);
+    renderer.shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
     debugDraw.draw();
   renderer.shaderManager.current->disable();
 
@@ -403,7 +403,7 @@ void Game::renderFromCamera(Camera camera) {
 void Game::render() {
   profiler.start("Render");
 
-  renderFromCamera(camera);
+  renderFromCamera(&camera);
   renderer.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
 
   renderer.gbuffer.bindForReading();
