@@ -8,7 +8,7 @@ enum kGBufferTexture {
   kDiffuseTexturePosition = 0,
   kNormalTexturePosition = 1,
   kPositionTexturePosition = 2,
-  kFinalTexturePosition = 4
+  kFinalTexturePosition = 3
 };
 
 class GBuffer {
