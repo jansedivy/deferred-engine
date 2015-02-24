@@ -4,9 +4,9 @@ int main() {
 
   Game game;
 
-  while (game.running) {
-    game.tick();
-  }
+  game.init();
+  game.run();
+  game.exit();
 
   return 0;
 }

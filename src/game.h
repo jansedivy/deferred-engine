@@ -36,7 +36,9 @@
 
 class Game {
   public:
-    Game();
+    void init();
+    void exit();
+    void run();
     void tick();
     void update(float time);
 

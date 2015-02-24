@@ -1,9 +1,11 @@
 #include "game.h"
 
-Game::Game() {
+void Game::init() {
+  profiler.start("Game init");
   width = 1280;
   height = (float)width * 9.0f/16.0f;
 
+  profiler.start("SDL load");
   SDL_Init(SDL_INIT_EVERYTHING);
 
   char *base_path = SDL_GetBasePath();
@@ -19,12 +21,17 @@ Game::Game() {
 
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-  window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+  window = SDL_CreateWindow("Game",
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
+      width, height,
+      SDL_WINDOW_OPENGL);
 
   keyboardState = SDL_GetKeyboardState(NULL);
 
   SDL_GLContext context = SDL_GL_CreateContext(window);
   SDL_GL_SetSwapInterval(-1);
+  profiler.end();
 
   renderer.init(width, height);
 
@@ -47,9 +54,9 @@ Game::Game() {
   /* loader.addTexture("AM3.jpg"); */
   loader.addTexture("img.png");
   loader.addTexture("planet.png");
+  loader.addTexture("marble1.jpg");
   /* loader.addTexture("normal.jpg"); */
   /* loader.addTexture("bricks.jpg"); */
-  loader.addTexture("marble1.jpg");
 
   /* std::vector<const char*> faces; */
   /* faces.push_back("right.png"); */
@@ -214,6 +221,17 @@ Game::Game() {
 
   running = true;
   oldTime = SDL_GetTicks();
+  profiler.end();
+}
+
+void Game::run() {
+  while (running) {
+    tick();
+  }
+}
+
+void Game::exit() {
+  profiler.exportData();
 }
 
 void Game::tick() {
@@ -246,9 +264,6 @@ void Game::update(float time) {
     switch (event.type) {
       case SDL_QUIT:
         running = false;
-
-        // TODO(sedivy): move to destructor?
-        profiler.exportData();
         break;
       case SDL_MOUSEBUTTONDOWN:
         /* debugDraw.addLine(camera.position + camera.forward * 2.0f, camera.position + camera.forward * 1000.0f, 100); */
@@ -354,15 +369,38 @@ void Game::renderFromCamera(Camera *camera) {
   renderer.shaderManager.use("basic");
   profiler.start("Render entities");
 
+  renderer.shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
+
+  if (keyboardState[SDL_SCANCODE_I]) {
+    for (auto it = lights.begin(); it != lights.end(); it++) {
+      if (it->type == kPoint) {
+        if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {
+          continue;
+        }
+
+        renderer.useMesh(primitives.getSphere());
+
+        glm::mat4 modelView;
+        modelView = glm::translate(modelView, it->position);
+        modelView = glm::scale(modelView, glm::vec3(it->radius));
+        renderer.shaderManager.current->texture("uSampler", loader.get("planet.png")->id, 0);
+        renderer.shaderManager.current->mat4("uMVMatrix", modelView);
+
+        renderer.draw(true);
+      }
+    }
+  }
+
   Texture *textureCache[8];
 
-  renderer.shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
+  int count = 0;
 
   for (auto it = entities.begin(); it != entities.end(); ++it) {
     float radius = it->getBoundingRadius();
     if (!camera->frustum.sphereInFrustum(it->position, radius)) {
       continue;
     }
+    count += 1;
     glm::mat4 modelView;
 
     modelView = glm::translate(modelView, it->position);
@@ -385,6 +423,7 @@ void Game::renderFromCamera(Camera *camera) {
     renderer.draw(renderWireframe);
   }
 
+  /* printf("%d\n", count); */
   profiler.end();
 
   renderer.shaderManager.current->disable();
