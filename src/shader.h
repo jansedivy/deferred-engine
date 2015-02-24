@@ -21,10 +21,10 @@ class Shader {
     void use();
     void disable();
 
-    void vec3(const char *name, glm::vec3 value);
-    void mat4(const char *name, glm::mat4 value);
-    void mat3(const char *name, glm::mat3 value);
-    void fl(const char *name, float value);
+    void setUniform(const char *name, glm::vec3 value);
+    void setUniform(const char *name, glm::mat4 value);
+    void setUniform(const char *name, glm::mat3 value);
+    void setUniform(const char *name, float value);
 
     void texture(const char *name, GLuint texture, int id);
     void cubemap(const char *name, GLuint texture, int id);

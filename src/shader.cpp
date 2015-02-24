@@ -57,19 +57,19 @@ void Shader::disable() {
   }
 }
 
-void Shader::vec3(const char* name, glm::vec3 value) {
+void Shader::setUniform(const char* name, glm::vec3 value) {
   glUniform3fv(uniforms[name], 1, glm::value_ptr(value));
 }
 
-void Shader::fl(const char *name, float value) {
+void Shader::setUniform(const char *name, float value) {
   glUniform1f(uniforms[name], value);
 }
 
-void Shader::mat4(const char *name, glm::mat4 value) {
+void Shader::setUniform(const char *name, glm::mat4 value) {
   glUniformMatrix4fv(uniforms[name], 1, false, glm::value_ptr(value));
 }
 
-void Shader::mat3(const char *name, glm::mat3 value) {
+void Shader::setUniform(const char *name, glm::mat3 value) {
   glUniformMatrix3fv(uniforms[name], 1, false, glm::value_ptr(value));
 }
 

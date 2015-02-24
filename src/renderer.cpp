@@ -9,7 +9,6 @@ void Renderer::init(int w, int h) {
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_DEPTH_CLAMP);
-  glEnable(GL_MULTISAMPLE);
   glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
   GLuint vao;
@@ -85,8 +84,8 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   view = glm::rotate(view, camera->rotation.y, glm::vec3(0.0, 1.0, 0.0));
   view = glm::rotate(view, camera->rotation.z, glm::vec3(0.0, 0.0, 1.0));
 
-  shaderManager.current->mat4("view", view);
-  shaderManager.current->mat4("projection", projection);
+  shaderManager.current->setUniform("view", view);
+  shaderManager.current->setUniform("projection", projection);
   shaderManager.current->cubemap("uSampler", skybox->texture->id, 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, skybox->mesh->buffers.vertices);
@@ -169,8 +168,8 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
 
   glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
 
-  shaderManager.current->mat4("invProjection", invProjection);
-  shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
+  shaderManager.current->setUniform("invProjection", invProjection);
+  shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
 
   shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
@@ -186,11 +185,11 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
       glm::mat4 modelView;
       modelView = glm::translate(modelView, it->position);
       modelView = glm::scale(modelView, glm::vec3(it->radius));
-      shaderManager.current->mat4("uMVMatrix", modelView);
+      shaderManager.current->setUniform("uMVMatrix", modelView);
 
-      shaderManager.current->vec3("lightPosition", it->position);
-      shaderManager.current->fl("lightRadius", it->radius);
-      shaderManager.current->vec3("lightColor", it->color);
+      shaderManager.current->setUniform("lightPosition", it->position);
+      shaderManager.current->setUniform("lightRadius", it->radius);
+      shaderManager.current->setUniform("lightColor", it->color);
 
       draw();
     }
@@ -216,8 +215,8 @@ void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *pro
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
     if (it->type == kDirectional) {
-      shaderManager.current->vec3("lightColor", it->color);
-      shaderManager.current->vec3("lightDirection", it->direction);
+      shaderManager.current->setUniform("lightColor", it->color);
+      shaderManager.current->setUniform("lightDirection", it->direction);
       draw();
     }
   }

@@ -19,8 +19,6 @@ void Game::init() {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
   window = SDL_CreateWindow("Game",
       SDL_WINDOWPOS_UNDEFINED,
       SDL_WINDOWPOS_UNDEFINED,
@@ -369,7 +367,7 @@ void Game::renderFromCamera(Camera *camera) {
   renderer.shaderManager.use("basic");
   profiler.start("Render entities");
 
-  renderer.shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
+  renderer.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
 
   if (keyboardState[SDL_SCANCODE_I]) {
     for (auto it = lights.begin(); it != lights.end(); it++) {
@@ -384,7 +382,7 @@ void Game::renderFromCamera(Camera *camera) {
         modelView = glm::translate(modelView, it->position);
         modelView = glm::scale(modelView, glm::vec3(it->radius));
         renderer.shaderManager.current->texture("uSampler", loader.get("planet.png")->id, 0);
-        renderer.shaderManager.current->mat4("uMVMatrix", modelView);
+        renderer.shaderManager.current->setUniform("uMVMatrix", modelView);
 
         renderer.draw(true);
       }
@@ -416,8 +414,8 @@ void Game::renderFromCamera(Camera *camera) {
       renderer.shaderManager.current->texture("uSampler", it->texture->id, 0);
     }
 
-    renderer.shaderManager.current->mat3("uNMatrix", normal);
-    renderer.shaderManager.current->mat4("uMVMatrix", modelView);
+    renderer.shaderManager.current->setUniform("uNMatrix", normal);
+    renderer.shaderManager.current->setUniform("uMVMatrix", modelView);
 
     renderer.useMesh(it->mesh);
     renderer.draw(renderWireframe);
@@ -429,7 +427,7 @@ void Game::renderFromCamera(Camera *camera) {
   renderer.shaderManager.current->disable();
 
   renderer.shaderManager.use("debug");
-    renderer.shaderManager.current->mat4("uPMatrix", camera->viewMatrix);
+    renderer.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
     debugDraw.draw();
   renderer.shaderManager.current->disable();
 

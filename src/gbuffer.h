@@ -4,6 +4,13 @@
 
 #include "common.h"
 
+enum kGBufferTexture {
+  kDiffuseTexturePosition = 0,
+  kNormalTexturePosition = 1,
+  kPositionTexturePosition = 2,
+  kFinalTexturePosition = 4
+};
+
 class GBuffer {
   public:
     GLuint id;
