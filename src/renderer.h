@@ -29,6 +29,8 @@ class Renderer {
     void useMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);
 
+    void clear(bool clearDepth=false);
+
     void drawSkybox(Skybox *skybox, Camera *camera);
     ShaderManager shaderManager;
 

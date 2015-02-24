@@ -144,7 +144,7 @@ void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_ONE, GL_ONE);
 
-  glClear(GL_COLOR_BUFFER_BIT);
+  clear();
 
   gbuffer.bindForLight();
   renderPointLights(lights, profiler, sphere, camera);
@@ -224,4 +224,12 @@ void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *pro
   shaderManager.current->disable();
 
   profiler->end();
+}
+
+void Renderer::clear(bool clearDepth) {
+  if (clearDepth) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  } else {
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 }

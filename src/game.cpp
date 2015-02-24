@@ -362,7 +362,7 @@ void Game::renderFromCamera(Camera *camera) {
 
   glDisable(GL_BLEND);
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  renderer.clear(true);
 
   renderer.shaderManager.use("basic");
   profiler.start("Render entities");
