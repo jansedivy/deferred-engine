@@ -7,7 +7,7 @@ void Renderer::init(int w, int h) {
   glewExperimental = GL_TRUE;
   glewInit();
 
-  glEnable(GL_DEPTH_TEST);
+  enableDepthRead();
   glEnable(GL_DEPTH_CLAMP);
   glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
@@ -73,7 +73,8 @@ void Renderer::draw(bool wireframe) {
 }
 
 void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
-  glDisable(GL_DEPTH_TEST);
+  disableDepthRead();
+
   glDepthMask(GL_FALSE);
   shaderManager.use("skybox");
 
@@ -97,7 +98,7 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   shaderManager.current->disable();
 
   glDepthMask(GL_TRUE);
-  glEnable(GL_DEPTH_TEST);
+  enableDepthRead();
 }
 
 void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
@@ -160,7 +161,7 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
-  glDisable(GL_DEPTH_TEST);
+  disableDepthRead();
 
   shaderManager.use("pointshader");
 
@@ -232,4 +233,12 @@ void Renderer::clear(bool clearDepth) {
   } else {
     glClear(GL_COLOR_BUFFER_BIT);
   }
+}
+
+void Renderer::enableDepthRead() {
+  glEnable(GL_DEPTH_TEST);
+}
+
+void Renderer::disableDepthRead() {
+  glDisable(GL_DEPTH_TEST);
 }

@@ -30,6 +30,8 @@ class Renderer {
     void populateBuffers(Mesh *mesh);
 
     void clear(bool clearDepth=false);
+    void enableDepthRead();
+    void disableDepthRead();
 
     void drawSkybox(Skybox *skybox, Camera *camera);
     ShaderManager shaderManager;

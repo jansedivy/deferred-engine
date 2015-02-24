@@ -357,7 +357,7 @@ void Game::renderFromCamera(Camera *camera) {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 
-  glEnable(GL_DEPTH_TEST);
+  gl.enableDepthRead();
   glDepthMask(GL_TRUE);
 
   glDisable(GL_BLEND);
@@ -406,7 +406,7 @@ void Game::renderFromCamera(Camera *camera) {
   gl.shaderManager.current->disable();
 
   glDepthMask(GL_FALSE);
-  glDisable(GL_DEPTH_TEST);
+  gl.disableDepthRead();
   glDisable(GL_CULL_FACE);
   profiler.end();
 }
@@ -416,8 +416,25 @@ void Game::render() {
 
   renderFromCamera(&camera);
   gl.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
+  profiler.end();
 
-  glEnable(GL_DEPTH_TEST);
+  debugRender();
+
+  gl.disableDepthRead();
+
+  gl.gbuffer.bindForReading();
+  gl.renderFullscreenTexture(gl.gbuffer.finalTexture, fullscreenMesh);
+
+  if (keyboardState[SDL_SCANCODE_O]) {
+    gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);
+  }
+
+  SDL_GL_SwapWindow(window);
+}
+
+void Game::debugRender() {
+  gl.enableDepthRead();
+
   if (keyboardState[SDL_SCANCODE_I]) {
     gl.shaderManager.use("color");
 
@@ -447,18 +464,4 @@ void Game::render() {
     gl.shaderManager.current->setUniform("uPMatrix", camera.viewMatrix);
     debugDraw.draw();
   gl.shaderManager.current->disable();
-  glDisable(GL_DEPTH_TEST);
-
-  gl.gbuffer.bindForReading();
-
-  gl.renderFullscreenTexture(gl.gbuffer.finalTexture, fullscreenMesh);
-
-  profiler.end();
-
-  if (keyboardState[SDL_SCANCODE_O]) {
-    gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);
-  }
-
-  SDL_GL_SwapWindow(window);
 }
-

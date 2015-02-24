@@ -46,6 +46,7 @@ class Game {
     void renderFromCamera(Camera *camera);
     void renderDirectionalLights();
     void renderPointLight(Light *light);
+    void debugRender();
 
     bool running;
 
