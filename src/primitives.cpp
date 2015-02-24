@@ -57,7 +57,7 @@ Mesh *Primitives::getSphere() {
     }
   }
 
-  renderer->populateBuffers(mesh);
+  gl->populateBuffers(mesh);
 
   mesh->boundingRadius = radius;
 
@@ -144,7 +144,7 @@ Mesh* Primitives::getCube() {
   mesh->normals.assign(std::begin(normals), std::end(normals));
   mesh->uv.assign(std::begin(uv), std::end(uv));
 
-  renderer->populateBuffers(mesh);
+  gl->populateBuffers(mesh);
   mesh->boundingRadius = 1.0;
 
   cube = mesh;
@@ -164,7 +164,7 @@ Mesh* Primitives::getQuad() {
   mesh->vertices = std::vector<float>(fullscreenVertices, std::end(fullscreenVertices));
   mesh->indices = std::vector<GLuint>(fullscreenIndices, std::end(fullscreenIndices));
   mesh->uv = std::vector<float>(fullscreenUV, std::end(fullscreenUV));
-  renderer->populateBuffers(mesh);
+  gl->populateBuffers(mesh);
 
   quad = mesh;
 

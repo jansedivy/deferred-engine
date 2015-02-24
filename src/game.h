@@ -51,7 +51,7 @@ class Game {
 
     SDL_Window *window;
     Primitives primitives;
-    Renderer renderer;
+    Renderer gl;
     Camera camera;
 
     Loader loader;

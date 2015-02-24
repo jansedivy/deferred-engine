@@ -31,7 +31,7 @@ void Game::init() {
   SDL_GL_SetSwapInterval(-1);
   profiler.end();
 
-  renderer.init(width, height);
+  gl.init(width, height);
 
   camera.setAspect((float)width/(float)height);
   camera.position[0] -= 20.0f;
@@ -39,13 +39,13 @@ void Game::init() {
   camera.position[2] -= 20.0f;
 
   profiler.start("loading shaders");
-  renderer.shaderManager.load("skybox", "shaders/skybox");
-  renderer.shaderManager.load("directionlight", "shaders/directionlight");
-  renderer.shaderManager.load("pointshader", "shaders/pointshader");
-  renderer.shaderManager.load("debug", "shaders/debug");
-  renderer.shaderManager.load("basic", "shaders/basic");
-  renderer.shaderManager.load("color", "shaders/color");
-  renderer.shaderManager.load("fullscreen", "shaders/fullscreen");
+  gl.shaderManager.load("skybox", "shaders/skybox");
+  gl.shaderManager.load("directionlight", "shaders/directionlight");
+  gl.shaderManager.load("pointshader", "shaders/pointshader");
+  gl.shaderManager.load("debug", "shaders/debug");
+  gl.shaderManager.load("basic", "shaders/basic");
+  gl.shaderManager.load("color", "shaders/color");
+  gl.shaderManager.load("fullscreen", "shaders/fullscreen");
   profiler.end();
 
   profiler.start("loading textures");
@@ -69,7 +69,7 @@ void Game::init() {
   loader.startLoading();
   profiler.end();
 
-  primitives.renderer = &renderer;
+  primitives.gl = &gl;
 
   debugDraw.init();
 
@@ -84,10 +84,10 @@ void Game::init() {
 
   profiler.start("loading meshes");
   std::vector<Mesh*> meshes;
-  loader.loadMesh("mesh.obj", &meshes, &renderer);
+  loader.loadMesh("mesh.obj", &meshes, &gl);
 
   std::vector<Mesh*> sponza;
-  loader.loadMesh("sponza.obj", &sponza, &renderer);
+  loader.loadMesh("sponza.obj", &sponza, &gl);
   profiler.end();
 
   profiler.start("adding objects to scene");
@@ -351,8 +351,8 @@ void Game::renderFromCamera(Camera *camera) {
   profiler.start("GBuffer");
   glEnable(GL_STENCIL_TEST);
 
-  renderer.gbuffer.bindForWriting();
-  glViewport(0, 0, renderer.gbuffer.width, renderer.gbuffer.height);
+  gl.gbuffer.bindForWriting();
+  glViewport(0, 0, gl.gbuffer.width, gl.gbuffer.height);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -362,32 +362,12 @@ void Game::renderFromCamera(Camera *camera) {
 
   glDisable(GL_BLEND);
 
-  renderer.clear(true);
+  gl.clear(true);
 
-  renderer.shaderManager.use("basic");
+  gl.shaderManager.use("basic");
   profiler.start("Render entities");
 
-  renderer.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
-
-  if (keyboardState[SDL_SCANCODE_I]) {
-    for (auto it = lights.begin(); it != lights.end(); it++) {
-      if (it->type == kPoint) {
-        if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {
-          continue;
-        }
-
-        renderer.bindMesh(primitives.getSphere());
-
-        glm::mat4 modelView;
-        modelView = glm::translate(modelView, it->position);
-        modelView = glm::scale(modelView, glm::vec3(it->radius));
-        renderer.shaderManager.current->texture("uSampler", loader.get("planet.png")->id, 0);
-        renderer.shaderManager.current->setUniform("uMVMatrix", modelView);
-
-        renderer.draw(true);
-      }
-    }
-  }
+  gl.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
 
   Texture *textureCache[8];
 
@@ -411,25 +391,19 @@ void Game::renderFromCamera(Camera *camera) {
 
     if (textureCache[0] != it->texture) {
       textureCache[0] = it->texture;
-      renderer.shaderManager.current->texture("uSampler", it->texture->id, 0);
+      gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
     }
 
-    renderer.shaderManager.current->setUniform("uNMatrix", normal);
-    renderer.shaderManager.current->setUniform("uMVMatrix", modelView);
+    gl.shaderManager.current->setUniform("uNMatrix", normal);
+    gl.shaderManager.current->setUniform("uMVMatrix", modelView);
 
-    renderer.bindMesh(it->mesh);
-    renderer.draw(renderWireframe);
+    gl.bindMesh(it->mesh);
+    gl.draw(renderWireframe);
   }
 
   /* printf("%d\n", count); */
   profiler.end();
-
-  renderer.shaderManager.current->disable();
-
-  renderer.shaderManager.use("debug");
-    renderer.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
-    debugDraw.draw();
-  renderer.shaderManager.current->disable();
+  gl.shaderManager.current->disable();
 
   glDepthMask(GL_FALSE);
   glDisable(GL_DEPTH_TEST);
@@ -441,15 +415,48 @@ void Game::render() {
   profiler.start("Render");
 
   renderFromCamera(&camera);
-  renderer.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
+  gl.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
 
-  renderer.gbuffer.bindForReading();
-  renderer.renderFullscreenTexture(renderer.gbuffer.finalTexture, fullscreenMesh);
+  glEnable(GL_DEPTH_TEST);
+  if (keyboardState[SDL_SCANCODE_I]) {
+    gl.shaderManager.use("color");
+
+    gl.shaderManager.current->setUniform("uPMatrix", camera.viewMatrix);
+
+    for (auto it = lights.begin(); it != lights.end(); it++) {
+      if (it->type == kPoint) {
+        if (!camera.frustum.sphereInFrustum(it->position, it->radius)) {
+          continue;
+        }
+
+        gl.bindMesh(primitives.getSphere());
+
+        glm::mat4 modelView;
+        modelView = glm::translate(modelView, it->position);
+        modelView = glm::scale(modelView, glm::vec3(it->radius));
+        gl.shaderManager.current->setUniform("uMVMatrix", modelView);
+
+        gl.draw(true);
+      }
+    }
+
+    gl.shaderManager.current->disable();
+  }
+
+  gl.shaderManager.use("debug");
+    gl.shaderManager.current->setUniform("uPMatrix", camera.viewMatrix);
+    debugDraw.draw();
+  gl.shaderManager.current->disable();
+  glDisable(GL_DEPTH_TEST);
+
+  gl.gbuffer.bindForReading();
+
+  gl.renderFullscreenTexture(gl.gbuffer.finalTexture, fullscreenMesh);
 
   profiler.end();
 
   if (keyboardState[SDL_SCANCODE_O]) {
-    renderer.debugRendererGBuffer(&renderer.gbuffer, fullscreenMesh);
+    gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);
   }
 
   SDL_GL_SwapWindow(window);

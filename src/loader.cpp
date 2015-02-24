@@ -118,7 +118,7 @@ unsigned char* Loader::loadImageData(const char *path, int *width, int *height) 
   return SOIL_load_image(path, width, height, 0, SOIL_LOAD_RGB);
 }
 
-void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *renderer) {
+void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *gl) {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_GenSmoothNormals);
 
@@ -160,7 +160,7 @@ void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *re
         }
       }
 
-      renderer->populateBuffers(mesh);
+      gl->populateBuffers(mesh);
 
       mesh->boundingRadius = radius;
 
