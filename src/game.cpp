@@ -358,7 +358,7 @@ void Game::renderFromCamera(Camera *camera) {
   glCullFace(GL_BACK);
 
   gl.enableDepthRead();
-  glDepthMask(GL_TRUE);
+  gl.enableDepthWrite();
 
   glDisable(GL_BLEND);
 
@@ -405,7 +405,7 @@ void Game::renderFromCamera(Camera *camera) {
   profiler.end();
   gl.shaderManager.current->disable();
 
-  glDepthMask(GL_FALSE);
+  gl.disableDepthWrite();
   gl.disableDepthRead();
   glDisable(GL_CULL_FACE);
   profiler.end();

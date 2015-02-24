@@ -75,7 +75,7 @@ void Renderer::draw(bool wireframe) {
 void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   disableDepthRead();
 
-  glDepthMask(GL_FALSE);
+  disableDepthWrite();
   shaderManager.use("skybox");
 
   glm::mat4 projection = glm::perspective(glm::radians(camera->fov), camera->aspectRatio, camera->near, camera->far);
@@ -97,7 +97,7 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
 
   shaderManager.current->disable();
 
-  glDepthMask(GL_TRUE);
+  enableDepthWrite();
   enableDepthRead();
 }
 
@@ -241,4 +241,12 @@ void Renderer::enableDepthRead() {
 
 void Renderer::disableDepthRead() {
   glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::enableDepthWrite() {
+  glDepthMask(GL_TRUE);
+}
+
+void Renderer::disableDepthWrite() {
+  glDepthMask(GL_FALSE);
 }

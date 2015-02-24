@@ -33,6 +33,9 @@ class Renderer {
     void enableDepthRead();
     void disableDepthRead();
 
+    void enableDepthWrite();
+    void disableDepthWrite();
+
     void drawSkybox(Skybox *skybox, Camera *camera);
     ShaderManager shaderManager;
 
