@@ -376,7 +376,7 @@ void Game::renderFromCamera(Camera *camera) {
           continue;
         }
 
-        renderer.useMesh(primitives.getSphere());
+        renderer.bindMesh(primitives.getSphere());
 
         glm::mat4 modelView;
         modelView = glm::translate(modelView, it->position);
@@ -417,7 +417,7 @@ void Game::renderFromCamera(Camera *camera) {
     renderer.shaderManager.current->setUniform("uNMatrix", normal);
     renderer.shaderManager.current->setUniform("uMVMatrix", modelView);
 
-    renderer.useMesh(it->mesh);
+    renderer.bindMesh(it->mesh);
     renderer.draw(renderWireframe);
   }
 

@@ -42,7 +42,7 @@ void Renderer::populateBuffers(Mesh *mesh) {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Renderer::useMesh(Mesh *mesh) {
+void Renderer::bindMesh(Mesh *mesh) {
   currentMesh = mesh;
 
   if (shaderManager.current->attributes.count("normals")) {
@@ -103,7 +103,7 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
 void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
   glDisable(GL_CULL_FACE);
   shaderManager.use("fullscreen");
-    useMesh(fullscreenMesh);
+    bindMesh(fullscreenMesh);
     glViewport(0, 0, width, height);
     shaderManager.current->texture("texture", texture, 0);
     draw();
@@ -113,7 +113,7 @@ void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
 void Renderer::debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh) {
   shaderManager.use("fullscreen");
 
-    useMesh(fullscreenMesh);
+    bindMesh(fullscreenMesh);
     framebuffer->bindForReading();
 
     glViewport(0, 0, width/2, height/2);
@@ -164,7 +164,7 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
 
   shaderManager.use("pointshader");
 
-  useMesh(sphere);
+  bindMesh(sphere);
 
   glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
 
@@ -211,7 +211,7 @@ void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *pro
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
   shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
 
-  useMesh(fullscreenMesh);
+  bindMesh(fullscreenMesh);
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
     if (it->type == kDirectional) {
