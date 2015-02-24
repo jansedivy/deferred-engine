@@ -31,5 +31,5 @@ class GBuffer {
     int width;
     int height;
 
-    GLenum buffers[5];
+    GLenum buffers[4];
 };
