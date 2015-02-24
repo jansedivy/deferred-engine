@@ -52,9 +52,9 @@ void Game::init() {
   /* loader.addTexture("AM3.jpg"); */
   loader.addTexture("img.png");
   loader.addTexture("planet.png");
-  loader.addTexture("marble1.jpg");
-  /* loader.addTexture("normal.jpg"); */
-  /* loader.addTexture("bricks.jpg"); */
+  /* loader.addTexture("marble1.jpg"); */
+  loader.addTexture("normal.jpg");
+  loader.addTexture("bricks.jpg");
 
   /* std::vector<const char*> faces; */
   /* faces.push_back("right.png"); */
@@ -78,7 +78,7 @@ void Game::init() {
   /* skybox.texture = loader.get("galaxySkybox"); */
   /* skybox.mesh = primitives.getCube(); */
 
-  Texture *asteroidTexture = loader.get("marble1.jpg");
+  Texture *asteroidTexture = loader.get("bricks.jpg");
   Texture *texture = loader.get("img.png");
   Texture *planetTexture = loader.get("planet.png");
 
@@ -163,57 +163,57 @@ void Game::init() {
     entities.push_back(entity);
   }
 
-  {
-    Entity entity;
-    entity.texture = planetTexture;
-    entity.scale = glm::vec3(2000.5, 2000.5, 2000.5);
-    entity.mesh = primitives.getSphere();
-    entity.x = 0;
-    entity.y = 0;
-    entity.type = kPlanet;
-    entity.position = glm::vec3(3500.0, 500.0, 500.0);
-    entities.push_back(entity);
-  }
+  /* { */
+  /*   Entity entity; */
+  /*   entity.texture = planetTexture; */
+  /*   entity.scale = glm::vec3(2000.5, 2000.5, 2000.5); */
+  /*   entity.mesh = primitives.getSphere(); */
+  /*   entity.x = 0; */
+  /*   entity.y = 0; */
+  /*   entity.type = kPlanet; */
+  /*   entity.position = glm::vec3(3500.0, 500.0, 500.0); */
+  /*   entities.push_back(entity); */
+  /* } */
 
-  {
-    Entity entity;
-    entity.texture = asteroidTexture;
-    entity.scale = glm::vec3(200.0, 6.0, 200.0);
-    entity.mesh = primitives.getCube();
-    entity.x = 0;
-    entity.y = 0;
-    entity.type = kOther;
-    entity.position = glm::vec3(200.0, 0.0, 0.0);
-    entities.push_back(entity);
-  }
+  /* { */
+  /*   Entity entity; */
+  /*   entity.texture = asteroidTexture; */
+  /*   entity.scale = glm::vec3(200.0, 6.0, 200.0); */
+  /*   entity.mesh = primitives.getCube(); */
+  /*   entity.x = 0; */
+  /*   entity.y = 0; */
+  /*   entity.type = kOther; */
+  /*   entity.position = glm::vec3(200.0, 0.0, 0.0); */
+  /*   entities.push_back(entity); */
+  /* } */
 
-  {
-    Entity entity;
-    entity.texture = planetTexture;
-    entity.scale = glm::vec3(2000.5, 2000.5, 2000.5);
-    entity.mesh = primitives.getSphere();
-    entity.x = 0;
-    entity.type = kPlanet;
-    entity.y = 0;
-    entity.position = glm::vec3(-5500.0, -3500.0, 500.0);
-    entities.push_back(entity);
-  }
+  /* { */
+  /*   Entity entity; */
+  /*   entity.texture = planetTexture; */
+  /*   entity.scale = glm::vec3(2000.5, 2000.5, 2000.5); */
+  /*   entity.mesh = primitives.getSphere(); */
+  /*   entity.x = 0; */
+  /*   entity.type = kPlanet; */
+  /*   entity.y = 0; */
+  /*   entity.position = glm::vec3(-5500.0, -3500.0, 500.0); */
+  /*   entities.push_back(entity); */
+  /* } */
 
-  int xSize = 20;
-  int ySize = 20;
-  for (int x=0; x<xSize; x++) {
-    for (int y=0; y<ySize; y++) {
-      Entity entity;
-      entity.texture = texture;
-      entity.scale = glm::vec3(0.5, 0.5, 0.5);
-      entity.mesh = primitives.getCube();
-      entity.type = kBlock;
-      entity.x = x-xSize/2;
-      entity.y = y-ySize/2;
-      entity.position = glm::vec3((x-xSize/2) * 1.5f, -4.0, (y-ySize/2) * 1.5f - 10.0f);
-      entities.push_back(entity);
-    }
-  }
+  /* int xSize = 20; */
+  /* int ySize = 20; */
+  /* for (int x=0; x<xSize; x++) { */
+  /*   for (int y=0; y<ySize; y++) { */
+  /*     Entity entity; */
+  /*     entity.texture = texture; */
+  /*     entity.scale = glm::vec3(0.5, 0.5, 0.5); */
+  /*     entity.mesh = primitives.getCube(); */
+  /*     entity.type = kBlock; */
+  /*     entity.x = x-xSize/2; */
+  /*     entity.y = y-ySize/2; */
+  /*     entity.position = glm::vec3((x-xSize/2) * 1.5f, -4.0, (y-ySize/2) * 1.5f - 10.0f); */
+  /*     entities.push_back(entity); */
+  /*   } */
+  /* } */
 
   profiler.end();
 
@@ -371,6 +371,8 @@ void Game::renderFromCamera(Camera *camera) {
 
   Texture *textureCache[8];
 
+  Texture *normalTexture = loader.get("normal.jpg");
+
   int count = 0;
 
   for (auto it = entities.begin(); it != entities.end(); ++it) {
@@ -387,14 +389,16 @@ void Game::renderFromCamera(Camera *camera) {
     modelView = glm::rotate(modelView, it->rotation.z, glm::vec3(0.0, 0.0, 1.0));
     modelView = glm::scale(modelView, it->scale);
 
-    glm::mat3 normal = glm::inverseTranspose(glm::mat3(modelView));
-
     if (textureCache[0] != it->texture) {
       textureCache[0] = it->texture;
       gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
     }
 
-    gl.shaderManager.current->setUniform("uNMatrix", normal);
+    if (textureCache[1] != normalTexture) {
+      textureCache[1] = normalTexture;
+      gl.shaderManager.current->texture("uNormalMap", normalTexture->id, 1);
+    }
+
     gl.shaderManager.current->setUniform("uMVMatrix", modelView);
 
     gl.bindMesh(it->mesh);

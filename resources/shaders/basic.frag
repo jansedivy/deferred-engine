@@ -1,10 +1,11 @@
 #version 330
 
 in vec4 vPosition;
-in vec3 transformedNormals;
 in vec2 texturePosition;
+in mat3 tbnMatrix;
 
 uniform sampler2D uSampler;
+uniform sampler2D uNormalMap;
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 normalOut;
@@ -16,9 +17,9 @@ vec4 encode(vec3 n) {
 
 void main() {
   vec3 diff = texture(uSampler, texturePosition).xyz;
-  vec4 normal = encode(normalize(transformedNormals));
+  vec3 normalMap = normalize(tbnMatrix * normalize(texture(uNormalMap, texturePosition).rgb * 2.0 - 1.0));
 
   fragColor = vec4(diff, 1.0);
-  normalOut = normal;
+  normalOut = encode(normalMap);
   positionOut = vPosition;
 }

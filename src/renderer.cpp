@@ -40,6 +40,11 @@ void Renderer::populateBuffers(Mesh *mesh) {
   glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.normals);
   glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(float), &mesh->normals[0], GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  glGenBuffers(1, &mesh->buffers.tangents);
+  glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.tangents);
+  glBufferData(GL_ARRAY_BUFFER, mesh->tangents.size() * sizeof(float), &mesh->tangents[0], GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Renderer::bindMesh(Mesh *mesh) {
@@ -48,6 +53,11 @@ void Renderer::bindMesh(Mesh *mesh) {
   if (shaderManager.current->attributes.count("normals")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.normals);
     glVertexAttribPointer(shaderManager.current->attributes["normals"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+
+  if (shaderManager.current->attributes.count("tangents")) {
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.tangents);
+    glVertexAttribPointer(shaderManager.current->attributes["tangents"], 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
   if (shaderManager.current->attributes.count("uv")) {

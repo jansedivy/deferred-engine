@@ -63,13 +63,23 @@ Texture* Loader::loadTexture(const char *path) {
   glBindTexture(GL_TEXTURE_2D, texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
-  /* glGenerateMipmap(GL_TEXTURE_2D); */
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  bool mipmap = true;
+
+  float aniso=0.0f;
+  glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+
+  if (mipmap) {
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  } else {
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  }
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -145,6 +155,10 @@ void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *gl
         mesh->normals.push_back(meshData->mNormals[l].x);
         mesh->normals.push_back(meshData->mNormals[l].y);
         mesh->normals.push_back(meshData->mNormals[l].z);
+
+        mesh->tangents.push_back(meshData->mTangents[l].x);
+        mesh->tangents.push_back(meshData->mTangents[l].y);
+        mesh->tangents.push_back(meshData->mTangents[l].z);
 
         if (meshData->mTextureCoords[0]) {
           mesh->uv.push_back(meshData->mTextureCoords[0][l].x);
