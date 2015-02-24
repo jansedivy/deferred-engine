@@ -7,17 +7,19 @@ in vec2 uv;
 
 uniform mat4 uPMatrix;
 uniform mat4 uMVMatrix;
+uniform mat4 uNormalMap;
+uniform mat3 uNMatrix;
 
 out vec4 vPosition;
 out vec2 texturePosition;
 out mat3 tbnMatrix;
 
 void main() {
-  texturePosition = uv;
+  texturePosition = uv.st * vec2(1.0, -1.0);
   vPosition = uMVMatrix * vec4(position, 1.0);
 
-  vec3 n = normalize((uMVMatrix * vec4(normals, 0.0)).xyz);
-  vec3 t = normalize((uMVMatrix * vec4(tangents, 0.0)).xyz);
+  vec3 n = normalize(uNMatrix * normals);
+  vec3 t = normalize(uNMatrix * tangents);
 
   t = normalize(t - dot(t, n) * n);
 

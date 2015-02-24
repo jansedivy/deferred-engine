@@ -4,12 +4,13 @@ Texture* Loader::get(const char *path) {
   if (textures.count(path)) {
     return textures[path];
   } else {
-    showError("Error getting texture", "Undefined texture %s", path);
+    printf("undefined %s\n", path);
+    /* showError("Error getting texture", "Undefined texture %s", path); */
     return NULL;
   }
 }
 
-void Loader::addTexture(const char *path) {
+void Loader::addTexture(std::string path) {
   TextureLoading loading;
   loading.path = path;
   loading.name = path;
@@ -37,24 +38,24 @@ void Loader::loadImagesInQueue() {
   for (auto it = texturesToLoad.begin(); it != texturesToLoad.end(); it++) {
     switch (it->type) {
       case kNormal:
-        textures[it->name] = loadTexture(it->path);
+        textures[it->name] = loadTexture(*it);
         break;
-      case kCubemap:
-        textures[it->name] = loadCubeMap(it->paths);
-        break;
+      /* case kCubemap: */
+      /*   textures[it->name] = loadCubeMap(it->paths); */
+      /*   break; */
     }
   }
 }
 
-Texture* Loader::loadTexture(const char *path) {
+Texture* Loader::loadTexture(TextureLoading textureLoading) {
   GLuint texture;
 
   int width;
   int height;
 
-  unsigned char *image = loadImageData(path, &width, &height);
+  unsigned char *image = loadImageData(textureLoading.path.c_str(), &width, &height);
   if (!image) {
-    showError("Error loading texture", "Error loading texture %s", path);
+    showError("Error loading texture", "Error loading texture \"%s\"", textureLoading.path.c_str());
     return NULL;
   }
 
@@ -114,9 +115,10 @@ Texture* Loader::loadCubeMap(std::vector<const char*> *faces) {
 
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
@@ -125,16 +127,46 @@ Texture* Loader::loadCubeMap(std::vector<const char*> *faces) {
 
 unsigned char* Loader::loadImageData(const char *path, int *width, int *height) {
   printf("Loading texture: %s\n", path);
-  return SOIL_load_image(path, width, height, 0, SOIL_LOAD_RGB);
+  int channels;
+  return SOIL_load_image(path, width, height, &channels, SOIL_LOAD_RGB);
 }
 
-void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *gl) {
+void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Renderer *gl) {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_GenSmoothNormals);
 
   if (!scene) {
     printf("Error: %s\n", importer.GetErrorString());
   }
+
+  for (unsigned int m=0; m<scene->mNumMaterials; ++m) {
+    {
+      int texIndex = 0;
+      aiString path;
+
+      aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_HEIGHT, texIndex, &path);
+      while (texFound == AI_SUCCESS) {
+        std::string fullPath = std::string(path.data);
+        addTexture(fullPath);
+        texIndex++;
+        texFound = scene->mMaterials[m]->GetTexture(aiTextureType_HEIGHT, texIndex, &path);
+      }
+    }
+
+    {
+      int texIndex = 0;
+      aiString path;
+
+      aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
+      while (texFound == AI_SUCCESS) {
+        std::string fullPath = std::string(path.data);
+        addTexture(fullPath);
+        texIndex++;
+        texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
+      }
+    }
+  }
+
 
   if (scene->HasMeshes()) {
     for (int i=0; i<scene->mNumMeshes; i++) {
@@ -174,11 +206,33 @@ void Loader::loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *gl
         }
       }
 
+      std::string textureName;
+      std::string normalName;
+
+      if (scene->HasMaterials()) {
+        const aiMaterial* material = scene->mMaterials[meshData->mMaterialIndex];
+
+        aiString texturePath;
+
+        if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
+          textureName = std::string(texturePath.data);
+        }
+
+        if (material->GetTextureCount(aiTextureType_HEIGHT) > 0 && material->GetTexture(aiTextureType_HEIGHT, 0, &texturePath) == AI_SUCCESS) {
+          normalName = std::string(texturePath.data);
+        }
+      }
+
       gl->populateBuffers(mesh);
 
       mesh->boundingRadius = radius;
 
-      meshes->push_back(mesh);
+      LoadedMesh loaded;
+      loaded.mesh = mesh;
+      loaded.textureName = textureName;
+      loaded.normalName = normalName;
+
+      meshes->push_back(loaded);
     }
   }
 }

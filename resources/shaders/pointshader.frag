@@ -20,7 +20,7 @@ vec3 decode(vec4 enc) {
 void main() {
   vec2 uv = gl_FragCoord.xy / vec2(1280.0, 720.0);
 
-  vec3 normalColor = decode(texture(normalTexture, uv));
+  vec3 normalColor = normalize(decode(texture(normalTexture, uv)));
   vec3 diffuseColor = texture(diffuseTexture, uv).xyz;
   vec3 positionColor = texture(positionTexture, uv).xyz;
   float depth = texture(depthTexture, uv).x;

@@ -21,6 +21,7 @@ class Entity {
     glm::vec3 color;
     glm::vec3 scale;
     Texture *texture;
+    Texture *normalMap;
 
     int x;
     int y;

@@ -15,35 +15,42 @@
 
 #include <map>
 
+enum TextureType {
+  kNormal,
+  kCubemap
+};
+
+struct TextureLoading {
+  std::string path;
+  std::string name;
+
+  TextureType type;
+
+  /*       std::vector<const char*> *paths; */
+};
+
+struct LoadedMesh {
+  Mesh *mesh;
+  std::string textureName;
+  std::string normalName;
+};
+
 class Loader {
   public:
-    Texture *loadTexture(const char *path);
+    Texture* loadTexture(TextureLoading textureLoading);
     Texture *loadCubeMap(std::vector<const char*> *faces);
 
-    void addTexture(const char *path);
+    void addTexture(std::string path);
     void addCubemap(const char *name, std::vector<const char*> *faces);
     Texture* get(const char *path);
 
     void startLoading();
 
-    void loadMesh(const char *path, std::vector<Mesh*> *meshes, Renderer *renderer);
+    void loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Renderer *gl);
   private:
     unsigned char* loadImageData(const char *path, int *width, int *height);
     std::map<std::string, Texture*> textures;
     void loadImagesInQueue();
-
-    enum TextureType {
-      kNormal,
-      kCubemap
-    };
-
-    struct TextureLoading {
-      const char *path;
-      std::vector<const char*> *paths;
-
-      const char *name;
-      TextureType type;
-    };
 
     std::vector<TextureLoading> texturesToLoad;
 };

@@ -50,11 +50,20 @@ void Game::init() {
 
   profiler.start("loading textures");
   /* loader.addTexture("AM3.jpg"); */
-  loader.addTexture("img.png");
-  loader.addTexture("planet.png");
+  loader.addTexture(std::string("img.png"));
+  loader.addTexture(std::string("planet.png"));
   /* loader.addTexture("marble1.jpg"); */
-  loader.addTexture("normal.jpg");
-  loader.addTexture("bricks.jpg");
+  loader.addTexture("up.png");
+  loader.addTexture(std::string("normal.jpg"));
+  loader.addTexture(std::string("bricks.jpg"));
+
+  profiler.start("loading meshes");
+  std::vector<LoadedMesh> meshes;
+  loader.loadMesh("mesh.obj", &meshes, &gl);
+
+  std::vector<LoadedMesh> sponza;
+  loader.loadMesh("sponza.obj", &sponza, &gl);
+  profiler.end();
 
   /* std::vector<const char*> faces; */
   /* faces.push_back("right.png"); */
@@ -82,21 +91,22 @@ void Game::init() {
   Texture *texture = loader.get("img.png");
   Texture *planetTexture = loader.get("planet.png");
 
-  profiler.start("loading meshes");
-  std::vector<Mesh*> meshes;
-  loader.loadMesh("mesh.obj", &meshes, &gl);
-
-  std::vector<Mesh*> sponza;
-  loader.loadMesh("sponza.obj", &sponza, &gl);
-  profiler.end();
-
   profiler.start("adding objects to scene");
   for (auto it = sponza.begin(); it != sponza.end(); it++) {
     Entity entity;
-    entity.texture = asteroidTexture;
+    if (!it->textureName.empty()) {
+      entity.texture = loader.get(it->textureName.c_str());
+    } else {
+      entity.texture = loader.get("up.png");
+    }
+    if (!it->normalName.empty()) {
+      entity.normalMap = loader.get(it->normalName.c_str());
+    } else {
+      entity.normalMap = loader.get("up.png");
+    }
     entity.type = kOther;
     entity.scale = glm::vec3(1.0, 1.0, 1.0);
-    entity.mesh = *it;
+    entity.mesh = it->mesh;
     entity.rotation = glm::vec3(0.0, 0.0, 0.0);
     entity.position = glm::vec3(-2000.0, 0.0, -1000.0);
     entities.push_back(entity);
@@ -146,7 +156,7 @@ void Game::init() {
         (((float)rand()/(float)RAND_MAX)/2.0 + 0.5) * 2.0f,
         (((float)rand()/(float)RAND_MAX)/2.0 + 0.5) * 2.0f
         );
-    entity.mesh = meshes[0];
+    entity.mesh = meshes[0].mesh;
     entity.x = 0;
     entity.y = 0;
     entity.rotation = glm::vec3(
@@ -389,16 +399,18 @@ void Game::renderFromCamera(Camera *camera) {
     modelView = glm::rotate(modelView, it->rotation.z, glm::vec3(0.0, 0.0, 1.0));
     modelView = glm::scale(modelView, it->scale);
 
-    if (textureCache[0] != it->texture) {
+    if (it->texture && textureCache[0] != it->texture) {
       textureCache[0] = it->texture;
       gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
     }
 
-    if (textureCache[1] != normalTexture) {
-      textureCache[1] = normalTexture;
-      gl.shaderManager.current->texture("uNormalMap", normalTexture->id, 1);
+    if (it->normalMap && textureCache[1] != it->normalMap) {
+      textureCache[1] = it->texture;
+      gl.shaderManager.current->texture("uNormalMap", it->normalMap->id, 1);
     }
 
+    glm::mat3 normal = glm::inverseTranspose(glm::mat3(modelView));
+    gl.shaderManager.current->setUniform("uNMatrix", normal);
     gl.shaderManager.current->setUniform("uMVMatrix", modelView);
 
     gl.bindMesh(it->mesh);
