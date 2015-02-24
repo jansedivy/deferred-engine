@@ -185,8 +185,8 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
       glm::mat4 modelView;
       modelView = glm::translate(modelView, it->position);
       modelView = glm::scale(modelView, glm::vec3(it->radius));
-      shaderManager.current->setUniform("uMVMatrix", modelView);
 
+      shaderManager.current->setUniform("uMVMatrix", modelView);
       shaderManager.current->setUniform("lightPosition", it->position);
       shaderManager.current->setUniform("lightRadius", it->radius);
       shaderManager.current->setUniform("lightColor", it->color);
