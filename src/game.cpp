@@ -267,10 +267,14 @@ void Game::update(float time) {
 
   SDL_PumpEvents();
   SDL_Event event;
-  SDL_SetRelativeMouseMode(SDL_TRUE);
 
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
+      case SDL_WINDOWEVENT:
+        if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+          SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
+        break;
       case SDL_QUIT:
         running = false;
         break;
