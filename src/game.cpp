@@ -285,11 +285,15 @@ void Game::update(float time) {
           light.type = kPoint;
           light.radius = 500.0f;
           light.position = camera.position;
-          light.color = glm::vec3(
-              ((float)rand()/(float)RAND_MAX),
-              ((float)rand()/(float)RAND_MAX),
-              ((float)rand()/(float)RAND_MAX)
-              );
+          if (keyboardState[SDL_SCANCODE_LSHIFT]) {
+            light.color = glm::vec3(
+                ((float)rand()/(float)RAND_MAX),
+                ((float)rand()/(float)RAND_MAX),
+                ((float)rand()/(float)RAND_MAX)
+                );
+          } else {
+            light.color = glm::vec3(238.0/255.0, 230.0/255.0, 103.0/255.0);
+          }
           lights.push_back(light);
         }
 
