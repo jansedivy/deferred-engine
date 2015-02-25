@@ -64,17 +64,20 @@ void Game::init() {
 
   std::vector<LoadedMesh> sponza;
   loader.loadMesh("sponza.obj", &sponza, &gl);
+
+  std::vector<LoadedMesh> wat;
+  loader.loadMesh("wat.obj", &wat, &gl);
   profiler.end();
 
-  /* std::vector<const char*> faces; */
-  /* faces.push_back("right.png"); */
-  /* faces.push_back("left.png"); */
-  /* faces.push_back("top.png"); */
-  /* faces.push_back("bottom.png"); */
-  /* faces.push_back("back.png"); */
-  /* faces.push_back("front.png"); */
+  std::vector<const char*> faces;
+  faces.push_back("right.png");
+  faces.push_back("left.png");
+  faces.push_back("top.png");
+  faces.push_back("bottom.png");
+  faces.push_back("back.png");
+  faces.push_back("front.png");
 
-  /* loader.addCubemap("galaxySkybox", &faces); */
+  loader.addCubemap("galaxySkybox", &faces);
 
   loader.startLoading();
   profiler.end();
@@ -85,8 +88,8 @@ void Game::init() {
 
   fullscreenMesh = primitives.getQuad();
 
-  /* skybox.texture = loader.get("galaxySkybox"); */
-  /* skybox.mesh = primitives.getCube(); */
+  skybox.texture = loader.get("galaxySkybox");
+  skybox.mesh = primitives.getCube();
 
   Texture *asteroidTexture = loader.get("bricks.jpg");
   Texture *texture = loader.get("img.png");
@@ -370,8 +373,6 @@ void Game::update(float time) {
 
 void Game::renderFromCamera(Camera *camera) {
   profiler.start("GBuffer");
-  glEnable(GL_STENCIL_TEST);
-
   gl.gbuffer.bindForWriting();
   glViewport(0, 0, gl.gbuffer.width, gl.gbuffer.height);
 
@@ -384,6 +385,13 @@ void Game::renderFromCamera(Camera *camera) {
   glDisable(GL_BLEND);
 
   gl.clear(true);
+
+  glClearStencil(0);
+  glEnable(GL_STENCIL_TEST);
+  glClear(GL_STENCIL_BUFFER_BIT);
+
+  glStencilFunc(GL_ALWAYS, 1, 1);
+  glStencilOp(GL_ZERO, GL_REPLACE, GL_REPLACE);
 
   gl.shaderManager.use("basic");
   profiler.start("Render entities");
@@ -443,13 +451,15 @@ void Game::render() {
 
   renderFromCamera(&camera);
   gl.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
-  profiler.end();
 
   debugRender();
 
-  gl.disableDepthRead();
+  gl.drawSkybox(&skybox, &camera);
 
+  gl.disableDepthRead();
   gl.finalRender(fullscreenMesh);
+
+  profiler.end();
 
   if (keyboardState[SDL_SCANCODE_O]) {
     gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);

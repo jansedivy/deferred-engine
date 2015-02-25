@@ -85,9 +85,14 @@ void Renderer::draw(bool wireframe) {
 }
 
 void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
-  disableDepthRead();
+  glEnable(GL_STENCIL_TEST);
 
+  glStencilFunc(GL_NOTEQUAL, 1, 1);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+  disableDepthRead();
   disableDepthWrite();
+
   shaderManager.use("skybox");
 
   glm::mat4 projection = glm::perspective(glm::radians(camera->fov), camera->aspectRatio, camera->near, camera->far);
@@ -111,6 +116,7 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
 
   enableDepthWrite();
   enableDepthRead();
+  glDisable(GL_STENCIL_TEST);
 }
 
 void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
@@ -152,6 +158,11 @@ void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *
   profiler->start("Lights");
 
   gbuffer.bindForLight();
+
+  glEnable(GL_STENCIL_TEST);
+
+  glStencilFunc(GL_EQUAL, 1, 1);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
