@@ -25,6 +25,7 @@ class Shader {
     void setUniform(const char *name, glm::mat4 value);
     void setUniform(const char *name, glm::mat3 value);
     void setUniform(const char *name, float value);
+    void setUniform(const char *name, int value);
 
     void texture(const char *name, GLuint texture, int id);
     void cubemap(const char *name, GLuint texture, int id);

@@ -54,7 +54,7 @@ void Game::init() {
   loader.addTexture(std::string("img.png"));
   loader.addTexture(std::string("planet.png"));
   /* loader.addTexture("marble1.jpg"); */
-  loader.addTexture("up.png");
+  loader.addTexture("default.png");
   loader.addTexture(std::string("normal.jpg"));
   loader.addTexture(std::string("bricks.jpg"));
 
@@ -101,12 +101,13 @@ void Game::init() {
     if (!it->textureName.empty()) {
       entity.texture = loader.get(it->textureName.c_str());
     } else {
-      entity.texture = loader.get("up.png");
+      entity.texture = loader.get("default.png");
     }
+
+    entity.normalMap = NULL;
+
     if (!it->normalName.empty()) {
       entity.normalMap = loader.get(it->normalName.c_str());
-    } else {
-      entity.normalMap = loader.get("up.png");
     }
     entity.type = kOther;
     entity.scale = glm::vec3(1.0, 1.0, 1.0);
@@ -419,14 +420,15 @@ void Game::renderFromCamera(Camera *camera) {
     modelView = glm::rotate(modelView, it->rotation.z, glm::vec3(0.0, 0.0, 1.0));
     modelView = glm::scale(modelView, it->scale);
 
-    if (it->texture && textureCache[0] != it->texture) {
-      textureCache[0] = it->texture;
+    if (it->texture) {
       gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
     }
 
-    if (it->normalMap && textureCache[1] != it->normalMap) {
-      textureCache[1] = it->texture;
+    if (it->normalMap != NULL) {
       gl.shaderManager.current->texture("uNormalMap", it->normalMap->id, 1);
+      gl.shaderManager.current->setUniform("hasNormalMap", 1);
+    } else {
+      gl.shaderManager.current->setUniform("hasNormalMap", 0);
     }
 
     glm::mat3 normal = glm::inverseTranspose(glm::mat3(modelView));
