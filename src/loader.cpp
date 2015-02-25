@@ -69,7 +69,7 @@ Texture* Loader::loadTexture(TextureLoading textureLoading) {
 
   bool mipmap = true;
 
-  float aniso=0.0f;
+  float aniso = 0.0f;
   glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
 
