@@ -200,6 +200,8 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
   shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
   shaderManager.current->texture("depthTexture", gbuffer.depthTexture, 3);
 
+  shaderManager.current->setUniform("camera", camera->position);
+
   for (auto it = lights->begin(); it != lights->end(); it++) {
     if (it->type == kPoint) {
       if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {

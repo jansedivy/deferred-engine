@@ -11,6 +11,8 @@ uniform vec3 lightPosition;
 uniform mat4 invProjection;
 uniform float lightRadius;
 
+uniform vec3 camera;
+
 out vec4 fragColor;
 
 vec3 decode(vec4 enc) {
@@ -38,5 +40,20 @@ void main() {
   float n_dot_l = clamp(dot(light_dir, normalColor), 0.0, 1.0);
   vec3 diffuse = lightColor * n_dot_l;
 
-  fragColor = attenuation * vec4(diffuse, 1.0) * vec4(diffuseColor, 1.0);
+
+  vec3 directionToEye = normalize(view_pos.xyz - camera);
+  vec3 reflectDirection = normalize(reflect(light_dir, normalColor));
+
+  float specularPower = 16.0;
+  float specularIntensity = 4.0;
+
+  vec4 specularColor = vec4(0.0, 0.0, 0.0, 0.0);
+  float specularFactor = dot(directionToEye, reflectDirection);
+  specularFactor = clamp(pow(specularFactor, specularPower), 0.0, 1.0);
+
+  if (specularFactor > 0) {
+    specularColor = vec4(lightColor, 1.0) * specularIntensity * specularFactor;
+  }
+
+  fragColor = attenuation * (specularColor + vec4(diffuse, 1.0)) * vec4(diffuseColor, 1.0);
 }
