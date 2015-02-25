@@ -4,6 +4,8 @@ void Renderer::init(int w, int h) {
   width = w;
   height = h;
 
+  antiAlias = true;
+
   glewExperimental = GL_TRUE;
   glewInit();
 
@@ -116,7 +118,7 @@ void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
   shaderManager.use("fullscreen");
     bindMesh(fullscreenMesh);
     glViewport(0, 0, width, height);
-    shaderManager.current->texture("texture", texture, 0);
+    shaderManager.current->texture("uSampler", texture, 0);
     draw();
   shaderManager.current->disable();
 }
@@ -259,4 +261,17 @@ void Renderer::enableDepthWrite() {
 
 void Renderer::disableDepthWrite() {
   glDepthMask(GL_FALSE);
+}
+
+void Renderer::finalRender(Mesh *fullscreenMesh) {
+  if (antiAlias) {
+    shaderManager.use("fxaa");
+      bindMesh(fullscreenMesh);
+      shaderManager.current->texture("uSampler", gbuffer.finalTexture, 0);
+      draw();
+    shaderManager.current->disable();
+  }
+
+  gbuffer.bindForReading();
+  renderFullscreenTexture(gbuffer.finalTexture, fullscreenMesh);
 }

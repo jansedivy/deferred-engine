@@ -26,6 +26,8 @@ class Renderer {
     void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera);
     void renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
 
+    void finalRender(Mesh *fullscreenMesh);
+
     void bindMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);
 
@@ -43,8 +45,9 @@ class Renderer {
 
     int width;
     int height;
+
+    bool antiAlias;
+
   private:
     Mesh *currentMesh;
 };
-
-

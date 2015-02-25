@@ -40,6 +40,7 @@ void Game::init() {
 
   profiler.start("loading shaders");
   gl.shaderManager.load("skybox", "shaders/skybox");
+  gl.shaderManager.load("fxaa", "shaders/fxaa");
   gl.shaderManager.load("directionlight", "shaders/directionlight");
   gl.shaderManager.load("pointshader", "shaders/pointshader");
   gl.shaderManager.load("debug", "shaders/debug");
@@ -293,6 +294,8 @@ void Game::update(float time) {
   }
 
   profiler.start("Update");
+  gl.antiAlias = !keyboardState[SDL_SCANCODE_U];
+
   int relX, relY;
   SDL_GetRelativeMouseState(&relX, &relY);
   camera.rotation[0] += relY/100.0f;
@@ -438,8 +441,7 @@ void Game::render() {
 
   gl.disableDepthRead();
 
-  gl.gbuffer.bindForReading();
-  gl.renderFullscreenTexture(gl.gbuffer.finalTexture, fullscreenMesh);
+  gl.finalRender(fullscreenMesh);
 
   if (keyboardState[SDL_SCANCODE_O]) {
     gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);
