@@ -270,6 +270,7 @@ void Game::update(float time) {
 
   SDL_PumpEvents();
   SDL_Event event;
+  SDL_SetRelativeMouseMode(SDL_TRUE);
 
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
