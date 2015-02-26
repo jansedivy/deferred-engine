@@ -276,13 +276,15 @@ void Renderer::disableDepthWrite() {
   glDepthMask(GL_FALSE);
 }
 
-void Renderer::finalRender(Mesh *fullscreenMesh) {
+void Renderer::finalRender(Mesh *fullscreenMesh, Profiler *profiler) {
   if (antiAlias) {
+    profiler->start("Anti-aliasing");
     shaderManager.use("fxaa");
       bindMesh(fullscreenMesh);
       shaderManager.current->texture("uSampler", gbuffer.finalTexture, 0);
       draw();
     shaderManager.current->disable();
+    profiler->end();
   }
 
   gbuffer.bindForReading();

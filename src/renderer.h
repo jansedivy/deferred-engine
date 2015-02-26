@@ -26,7 +26,7 @@ class Renderer {
     void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera);
     void renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
 
-    void finalRender(Mesh *fullscreenMesh);
+    void finalRender(Mesh *fullscreenMesh, Profiler *profiler);
 
     void bindMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);

@@ -264,9 +264,12 @@ void Game::tick() {
   update(diff);
   render();
   profiler.end();
+
+  SDL_GL_SwapWindow(window);
 }
 
 void Game::update(float time) {
+  profiler.start("Update");
   totalTime += time;
 
   SDL_PumpEvents();
@@ -306,7 +309,6 @@ void Game::update(float time) {
     }
   }
 
-  profiler.start("Update");
   gl.antiAlias = !keyboardState[SDL_SCANCODE_U];
 
   int relX, relY;
@@ -460,15 +462,13 @@ void Game::render() {
   gl.drawSkybox(&skybox, &camera);
 
   gl.disableDepthRead();
-  gl.finalRender(fullscreenMesh);
-
-  profiler.end();
+  gl.finalRender(fullscreenMesh, &profiler);
 
   if (keyboardState[SDL_SCANCODE_O]) {
     gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);
   }
 
-  SDL_GL_SwapWindow(window);
+  profiler.end();
 }
 
 void Game::debugRender() {
