@@ -3,8 +3,6 @@
 #define CAP_MIN_DISTANCE 0.0001
 #define CAP_MAX_DISTANCE 0.005
 
-in vec2 outUv;
-
 uniform sampler2D uDepth;
 uniform sampler2D uNormal;
 uniform sampler2D noiseTexture;
@@ -19,6 +17,8 @@ uniform vec3 kernel[128];
 uniform int uKernelSize;
 
 uniform mat4 uPMatrix;
+
+in vec2 pos;
 
 out vec4 fragColor;
 
@@ -48,10 +48,12 @@ vec4 getViewPos(vec2 texCoord) {
 
 void main(void)
 {
-  vec4 posView = getViewPos(outUv);
-  vec3 normalView = normalize(texture(uNormal, outUv).xyz * 2.0 - 1.0);
+  vec2 uv = pos * 0.5 + 0.5;
 
-  vec3 randomVector = normalize(texture(noiseTexture, outUv * noiseScale).xyz * 2.0 - 1.0);
+  vec4 posView = getViewPos(uv);
+  vec3 normalView = normalize(texture(uNormal, uv).xyz * 2.0 - 1.0);
+
+  vec3 randomVector = normalize(texture(noiseTexture, uv * noiseScale).xyz * 2.0 - 1.0);
   vec3 tangentView = normalize(randomVector - dot(randomVector, normalView) * normalView);
   vec3 bitangentView = cross(normalView, tangentView);
   mat3 tbn = mat3(tangentView, bitangentView, normalView);
@@ -76,5 +78,5 @@ void main(void)
   occlusion = 1.0 - (occlusion / (float(uKernelSize) - 1.0));
   /* occlusion = pow(occlusion, 2.0); */
 
-  fragColor = vec4(texture(diffuseTexture, outUv).xyz * occlusion, 1.0);
+  fragColor = vec4(texture(diffuseTexture, uv).xyz * occlusion, 1.0);
 }

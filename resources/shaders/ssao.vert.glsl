@@ -1,11 +1,10 @@
 #version 330
 
-in vec3 position;
-in vec2 uv;
+in vec2 position;
 
-out vec2 outUv;
+out vec2 pos;
 
 void main() {
-  outUv = uv.st;
-  gl_Position = vec4(position, 1.0);
+  pos = position;
+  gl_Position = vec4(position, 1.0, 1.0);
 }

@@ -19,15 +19,15 @@ class Renderer {
     void init(int w, int h);
 
     void draw(bool wireframe=false);
-    void debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh);
-    void renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh);
+    void debugRendererGBuffer(GBuffer *framebuffer);
+    void renderFullscreenTexture(GLuint texture);
 
-    void drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Mesh *fullscreenMesh, Camera *camera);
+    void drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
 
-    void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera);
+    void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Camera *camera);
     void renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
 
-    void finalRender(Mesh *fullscreenMesh, Profiler *profiler, Camera *camera);
+    void finalRender(Profiler *profiler, Camera *camera);
 
     void bindMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);

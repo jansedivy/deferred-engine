@@ -1,12 +1,14 @@
 #version 330
 
-in vec2 outUv;
-
 uniform sampler2D uSampler;
+
+in vec2 pos;
 
 out vec4 fragColor;
 
 void main() {
+  vec2 uv = pos * 0.5 + 0.5;
+
   float FXAA_SPAN_MAX = 8.0;
   float FXAA_REDUCE_MIN = 1.0/128.0;
   float FXAA_REDUCE_MUL = 1.0/8.0;
@@ -14,11 +16,11 @@ void main() {
   vec2 texCoordOffset = vec2(1./1280.0, 1.0/720.0);
 
   vec3 luma = vec3(0.299, 0.587, 0.114);
-  float lumaTL = dot(luma, texture(uSampler, outUv + (vec2(-1.0, -1.0) * texCoordOffset)).xyz);
-  float lumaTR = dot(luma, texture(uSampler, outUv + (vec2(1.0, -1.0) * texCoordOffset)).xyz);
-  float lumaBL = dot(luma, texture(uSampler, outUv + (vec2(-1.0, 1.0) * texCoordOffset)).xyz);
-  float lumaBR = dot(luma, texture(uSampler, outUv + (vec2(1.0, 1.0) * texCoordOffset)).xyz);
-  float lumaM  = dot(luma, texture(uSampler, outUv).xyz);
+  float lumaTL = dot(luma, texture(uSampler, uv + (vec2(-1.0, -1.0) * texCoordOffset)).xyz);
+  float lumaTR = dot(luma, texture(uSampler, uv + (vec2(1.0, -1.0) * texCoordOffset)).xyz);
+  float lumaBL = dot(luma, texture(uSampler, uv + (vec2(-1.0, 1.0) * texCoordOffset)).xyz);
+  float lumaBR = dot(luma, texture(uSampler, uv + (vec2(1.0, 1.0) * texCoordOffset)).xyz);
+  float lumaM  = dot(luma, texture(uSampler, uv).xyz);
 
   vec2 dir;
   dir.x = -((lumaTL + lumaTR) - (lumaBL + lumaBR));
@@ -36,12 +38,12 @@ void main() {
   dir = dir * texCoordOffset;
 
   vec3 result1 = (1.0/2.0) * (
-    texture(uSampler, outUv + (dir * vec2(1.0/3.0 - 0.5))).xyz +
-    texture(uSampler, outUv + (dir * vec2(2.0/3.0 - 0.5))).xyz);
+    texture(uSampler, uv + (dir * vec2(1.0/3.0 - 0.5))).xyz +
+    texture(uSampler, uv + (dir * vec2(2.0/3.0 - 0.5))).xyz);
 
   vec3 result2 = result1 * (1.0/2.0) + (1.0/4.0) * (
-    texture(uSampler, outUv + (dir * vec2(0.0/3.0 - 0.5))).xyz +
-    texture(uSampler, outUv + (dir * vec2(3.0/3.0 - 0.5))).xyz);
+    texture(uSampler, uv + (dir * vec2(0.0/3.0 - 0.5))).xyz +
+    texture(uSampler, uv + (dir * vec2(3.0/3.0 - 0.5))).xyz);
 
   float lumaMin = min(lumaM, min(min(lumaTL, lumaTR), min(lumaBL, lumaBR)));
   float lumaMax = max(lumaM, max(max(lumaTL, lumaTR), max(lumaBL, lumaBR)));

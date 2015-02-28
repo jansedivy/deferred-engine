@@ -65,7 +65,6 @@ class Game {
 
     float totalTime = 0.0f;
 
-    Mesh *fullscreenMesh;
     Texture *skyboxTexture;
     bool renderWireframe;
 

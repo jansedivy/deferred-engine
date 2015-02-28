@@ -179,7 +179,7 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
   glDisable(GL_STENCIL_TEST);
 }
 
-void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
+void Renderer::renderFullscreenTexture(GLuint texture) {
   glDisable(GL_CULL_FACE);
   shaderManager.use("fullscreen");
     glViewport(0, 0, width, height);
@@ -191,7 +191,7 @@ void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
   shaderManager.current->disable();
 }
 
-void Renderer::debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh) {
+void Renderer::debugRendererGBuffer(GBuffer *framebuffer) {
   shaderManager.use("fullscreen");
     glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
     glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -217,7 +217,7 @@ void Renderer::debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh) 
   shaderManager.current->disable();
 }
 
-void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Mesh *fullscreenMesh, Camera *camera) {
+void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera) {
   profiler->start("Lights");
 
   gbuffer.bindForLight();
@@ -235,7 +235,7 @@ void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *
 
   gbuffer.bindForLight();
   renderPointLights(lights, profiler, sphere, camera);
-  renderDirectionalLights(lights, profiler, fullscreenMesh, camera);
+  renderDirectionalLights(lights, profiler, camera);
 
   glDisable(GL_BLEND);
 
@@ -289,7 +289,7 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
   profiler->end();
 }
 
-void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera) {
+void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Camera *camera) {
   profiler->start("Directional Lights");
 
   glDisable(GL_CULL_FACE);
@@ -300,13 +300,14 @@ void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *pro
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
   shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
 
-  bindMesh(fullscreenMesh);
+  glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+  glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
     if (it->type == kDirectional) {
       shaderManager.current->setUniform("lightColor", it->color);
       shaderManager.current->setUniform("lightDirection", it->direction);
-      draw();
+      glDrawArrays(GL_TRIANGLES, 0, 6);
     }
   }
 
@@ -339,13 +340,14 @@ void Renderer::disableDepthWrite() {
   glDepthMask(GL_FALSE);
 }
 
-void Renderer::finalRender(Mesh *fullscreenMesh, Profiler *profiler, Camera *camera) {
+void Renderer::finalRender(Profiler *profiler, Camera *camera) {
   if (antiAlias) {
     profiler->start("Anti-aliasing");
     shaderManager.use("fxaa");
-      bindMesh(fullscreenMesh);
       shaderManager.current->texture("uSampler", gbuffer.finalTexture, 0);
-      draw();
+      glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+      glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
     shaderManager.current->disable();
     profiler->end();
   }
@@ -353,7 +355,9 @@ void Renderer::finalRender(Mesh *fullscreenMesh, Profiler *profiler, Camera *cam
   if (ssao) {
     profiler->start("SSAO");
     shaderManager.use("ssao");
-    bindMesh(fullscreenMesh);
+
+    glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+    glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
     shaderManager.current->setUniform("invProjection", invProjection);
@@ -370,11 +374,11 @@ void Renderer::finalRender(Mesh *fullscreenMesh, Profiler *profiler, Camera *cam
     shaderManager.current->setUniform("noiseScale", noiseSize);
     shaderManager.current->setUniform("uKernelSize", kernelSize);
     shaderManager.current->setUniform("uRadius", ssaoRadius);
-    draw();
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     shaderManager.current->disable();
     profiler->end();
   }
 
   gbuffer.bindForReading();
-  renderFullscreenTexture(gbuffer.finalTexture, fullscreenMesh);
+  renderFullscreenTexture(gbuffer.finalTexture);
 }

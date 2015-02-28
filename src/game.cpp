@@ -86,8 +86,6 @@ void Game::init() {
 
   debugDraw.init();
 
-  fullscreenMesh = primitives.getQuad();
-
   skybox.texture = loader.get("galaxySkybox");
   skybox.mesh = primitives.getCube();
 
@@ -464,17 +462,17 @@ void Game::render() {
   profiler.start("Render");
 
   renderFromCamera(&camera);
-  gl.drawLights(&lights, &profiler, primitives.getSphere(), fullscreenMesh, &camera);
+  gl.drawLights(&lights, &profiler, primitives.getSphere(), &camera);
 
   debugRender();
 
   gl.drawSkybox(&skybox, &camera);
 
   gl.disableDepthRead();
-  gl.finalRender(fullscreenMesh, &profiler, &camera);
+  gl.finalRender(&profiler, &camera);
 
   if (keyboardState[SDL_SCANCODE_O]) {
-    gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);
+    gl.debugRendererGBuffer(&gl.gbuffer);
   }
 
   profiler.end();
