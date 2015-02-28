@@ -67,8 +67,6 @@ void Game::init() {
   std::vector<LoadedMesh> sponza;
   loader.loadMesh("sponza.obj", &sponza, &gl);
 
-  std::vector<LoadedMesh> wat;
-  loader.loadMesh("wat.obj", &wat, &gl);
   profiler.end();
 
   std::vector<const char*> faces;
