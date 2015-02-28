@@ -63,7 +63,21 @@ void Renderer::init(int w, int h) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glBindTexture(GL_TEXTURE_2D, 0);
-  printf("%d\n", noiseId);
+
+  float vertices[] = {
+    -1.0f, -1.0f,
+    1.0f, -1.0f,
+    -1.0f, 1.0f,
+
+    1.0f, -1.0f,
+    1.1f, 1.0f,
+    -1.0f, 1.0f
+  };
+
+  glGenBuffers(1, &screenAlignedQuad);
+  glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   gbuffer.init(width, height);
 }
@@ -168,34 +182,37 @@ void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
 void Renderer::renderFullscreenTexture(GLuint texture, Mesh *fullscreenMesh) {
   glDisable(GL_CULL_FACE);
   shaderManager.use("fullscreen");
-    bindMesh(fullscreenMesh);
     glViewport(0, 0, width, height);
     shaderManager.current->texture("uSampler", texture, 0);
-    draw();
+
+    glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+    glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
   shaderManager.current->disable();
 }
 
 void Renderer::debugRendererGBuffer(GBuffer *framebuffer, Mesh *fullscreenMesh) {
   shaderManager.use("fullscreen");
+    glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+    glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-    bindMesh(fullscreenMesh);
     framebuffer->bindForReading();
 
     glViewport(0, 0, width/2, height/2);
-    shaderManager.current->texture("texture", framebuffer->texture, 0);
-    draw();
+    shaderManager.current->texture("uSampler", framebuffer->texture, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glViewport(width/2, 0, width/2, height/2);
-    shaderManager.current->texture("texture", framebuffer->normalTexture, 0);
-    draw();
+    shaderManager.current->texture("uSampler", framebuffer->normalTexture, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glViewport(0, height/2, width/2, height/2);
-    shaderManager.current->texture("texture", framebuffer->positionTexture, 0);
-    draw();
+    shaderManager.current->texture("uSampler", framebuffer->positionTexture, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glViewport(width/2, height/2, width/2, height/2);
-    shaderManager.current->texture("texture", framebuffer->depthTexture, 0);
-    draw();
+    shaderManager.current->texture("uSampler", framebuffer->depthTexture, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
   shaderManager.current->disable();
 }

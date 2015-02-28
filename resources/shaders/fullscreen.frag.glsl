@@ -1,11 +1,13 @@
 #version 330
 
-in vec2 outUv;
-
 uniform sampler2D uSampler;
 
 out vec4 fragColor;
 
+in vec2 pos;
+
 void main() {
-  fragColor = texture(uSampler, outUv);
+  vec2 uv = pos * 0.5 + 0.5;
+
+  fragColor = texture(uSampler, uv);
 }

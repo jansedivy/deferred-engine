@@ -59,6 +59,7 @@ class Renderer {
     bool ssao;
     float ssaoRadius;
 
+    GLuint screenAlignedQuad;
 
   private:
     Mesh *currentMesh;
