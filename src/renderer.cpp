@@ -204,10 +204,6 @@ void Renderer::debugRendererGBuffer(GBuffer *framebuffer) {
     shaderManager.current->texture("uSampler", framebuffer->normalTexture, 0);
     drawScreenAlignedQuad();
 
-    glViewport(0, height/2, width/2, height/2);
-    shaderManager.current->texture("uSampler", framebuffer->positionTexture, 0);
-    drawScreenAlignedQuad();
-
     glViewport(width/2, height/2, width/2, height/2);
     shaderManager.current->texture("uSampler", framebuffer->depthTexture, 0);
     drawScreenAlignedQuad();
@@ -234,6 +230,7 @@ void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *
   gbuffer.bindForLight();
   renderPointLights(lights, profiler, sphere, camera);
   renderDirectionalLights(lights, profiler, camera);
+  renderAmbientLight(lights, profiler, camera);
 
   glDisable(GL_BLEND);
 
@@ -258,7 +255,6 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
 
   shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
-  shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
   shaderManager.current->texture("depthTexture", gbuffer.depthTexture, 3);
 
   shaderManager.current->setUniform("camera", camera->position);
@@ -287,6 +283,29 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
   profiler->end();
 }
 
+void Renderer::renderAmbientLight(std::vector<Light> *lights, Profiler *profiler, Camera *camera) {
+  profiler->start("Ambient Light");
+
+  glDisable(GL_CULL_FACE);
+
+  shaderManager.use("ambientlight");
+
+  shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
+
+  bindScreenAlignedQuad();
+
+  for (auto it = lights->begin(); it != lights->end(); it++) {
+    if (it->type == kDirectional) {
+      shaderManager.current->setUniform("lightColor", it->color);
+      drawScreenAlignedQuad();
+    }
+  }
+
+  shaderManager.current->disable();
+
+  profiler->end();
+}
+
 void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Camera *camera) {
   profiler->start("Directional Lights");
 
@@ -296,7 +315,6 @@ void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *pro
 
   shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
-  shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
 
   bindScreenAlignedQuad();
 
@@ -363,7 +381,6 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
     shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
     shaderManager.current->texture("uNormal", gbuffer.normalTexture, 1);
     shaderManager.current->texture("noiseTexture", noiseId, 2);
-    shaderManager.current->texture("uPosition", gbuffer.positionTexture, 3);
     shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
 
     shaderManager.current->setUniform("noiseScale", noiseSize);

@@ -6,7 +6,6 @@
 uniform sampler2D uDepth;
 uniform sampler2D uNormal;
 uniform sampler2D noiseTexture;
-uniform sampler2D uPosition;
 uniform sampler2D diffuseTexture;
 uniform float noiseScale;
 uniform float uRadius;

@@ -27,16 +27,6 @@ void GBuffer::init(int w, int h) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  // position
-  glGenTextures(1, &positionTexture);
-  glBindTexture(GL_TEXTURE_2D, positionTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + kPositionTexturePosition, GL_TEXTURE_2D, positionTexture, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
   // final
   glGenTextures(1, &finalTexture);
   glBindTexture(GL_TEXTURE_2D, finalTexture);
@@ -56,10 +46,9 @@ void GBuffer::init(int w, int h) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  buffers[0] = GL_COLOR_ATTACHMENT0 + kDiffuseTexturePosition;
-  buffers[1] = GL_COLOR_ATTACHMENT0 + kNormalTexturePosition;
-  buffers[2] = GL_COLOR_ATTACHMENT0 + kPositionTexturePosition;
-  buffers[3] = GL_COLOR_ATTACHMENT0 + kFinalTexturePosition;
+  buffers[kDiffuseTexturePosition] = GL_COLOR_ATTACHMENT0 + kDiffuseTexturePosition;
+  buffers[kNormalTexturePosition] = GL_COLOR_ATTACHMENT0 + kNormalTexturePosition;
+  buffers[kFinalTexturePosition] = GL_COLOR_ATTACHMENT0 + kFinalTexturePosition;
 
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

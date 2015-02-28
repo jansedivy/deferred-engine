@@ -11,14 +11,12 @@ uniform mat3 uNMatrix;
 
 uniform int hasNormalMap;
 
-out vec4 vPosition;
 out vec2 texturePosition;
 out mat3 tbnMatrix;
 out vec3 inNormals;
 
 void main() {
   texturePosition = uv.st * vec2(1.0, -1.0);
-  vPosition = uMVMatrix * vec4(position, 1.0);
 
   if (hasNormalMap == 1) {
     vec3 n = normalize(uNMatrix * normals);
@@ -32,5 +30,5 @@ void main() {
     inNormals = uNMatrix * normals;
   }
 
-  gl_Position = uPMatrix * vPosition;
+  gl_Position = uPMatrix * uMVMatrix * vec4(position, 1.0);
 }

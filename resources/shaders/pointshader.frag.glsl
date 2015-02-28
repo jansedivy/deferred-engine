@@ -2,7 +2,6 @@
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
-uniform sampler2D positionTexture;
 uniform sampler2D depthTexture;
 
 uniform vec3 lightColor;
@@ -24,7 +23,6 @@ void main() {
 
   vec3 normalColor = normalize(decode(texture(normalTexture, uv)));
   vec3 diffuseColor = texture(diffuseTexture, uv).xyz;
-  vec3 positionColor = texture(positionTexture, uv).xyz;
   float depth = texture(depthTexture, uv).x;
 
   vec4 view_pos = vec4(uv*2.0-1.0, depth*2.0 - 1.0, 1.0);

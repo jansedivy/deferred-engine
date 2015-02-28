@@ -44,6 +44,7 @@ void Game::init() {
   gl.shaderManager.load("fxaa", "shaders/fxaa");
   gl.shaderManager.load("ssao", "shaders/ssao");
   gl.shaderManager.load("directionlight", "shaders/directionlight");
+  gl.shaderManager.load("ambientlight", "shaders/ambientlight");
   gl.shaderManager.load("pointshader", "shaders/pointshader");
   gl.shaderManager.load("debug", "shaders/debug");
   gl.shaderManager.load("basic", "shaders/basic");
@@ -126,108 +127,10 @@ void Game::init() {
 
   {
     Light light;
-    light.type = kDirectional;
-    light.color = glm::vec3(0.2, 0.0, 0.0);
-    light.direction = glm::vec3(0.0, -1.0, 0.0);
+    light.type = kAmbient;
+    light.color = glm::vec3(0.3, 0.3, 0.3);
     lights.push_back(light);
   }
-
-  {
-    for (int i=0; i<1; i++) {
-      Light light;
-      light.type = kPoint;
-      light.radius = 100.0f;
-      light.position = glm::vec3(
-          ((float)rand()/(float)RAND_MAX) * 500.0f - 250.0f,
-          11.0,
-          ((float)rand()/(float)RAND_MAX) * 500.0f - 250.0f
-          );
-      light.color = glm::vec3(
-          ((float)rand()/(float)RAND_MAX),
-          ((float)rand()/(float)RAND_MAX),
-          ((float)rand()/(float)RAND_MAX)
-          );
-      lights.push_back(light);
-    }
-  }
-
-  for (int i=0; i<50; i++) {
-    Entity entity;
-    entity.texture = asteroidTexture;
-    entity.type = kAsteroid;
-    entity.scale = glm::vec3(
-        (((float)rand()/(float)RAND_MAX)/2.0 + 0.5) * 2.0f,
-        (((float)rand()/(float)RAND_MAX)/2.0 + 0.5) * 2.0f,
-        (((float)rand()/(float)RAND_MAX)/2.0 + 0.5) * 2.0f
-        );
-    entity.mesh = meshes[0].mesh;
-    entity.x = 0;
-    entity.y = 0;
-    entity.rotation = glm::vec3(
-        ((float)rand()/(float)RAND_MAX) * M_PI*2.0f,
-        ((float)rand()/(float)RAND_MAX) * M_PI*2.0f,
-        ((float)rand()/(float)RAND_MAX) * M_PI*2.0f
-        );
-    entity.position = glm::vec3(
-        ((float)rand()/(float)RAND_MAX) * 8000.0f - 4000.0f,
-        ((float)rand()/(float)RAND_MAX) * 8000.0f - 4000.0f,
-        ((float)rand()/(float)RAND_MAX) * 8000.0f - 4000.0f
-        );
-
-    entities.push_back(entity);
-  }
-
-  /* { */
-  /*   Entity entity; */
-  /*   entity.texture = planetTexture; */
-  /*   entity.scale = glm::vec3(2000.5, 2000.5, 2000.5); */
-  /*   entity.mesh = primitives.getSphere(); */
-  /*   entity.x = 0; */
-  /*   entity.y = 0; */
-  /*   entity.type = kPlanet; */
-  /*   entity.position = glm::vec3(3500.0, 500.0, 500.0); */
-  /*   entities.push_back(entity); */
-  /* } */
-
-  /* { */
-  /*   Entity entity; */
-  /*   entity.texture = asteroidTexture; */
-  /*   entity.scale = glm::vec3(200.0, 6.0, 200.0); */
-  /*   entity.mesh = primitives.getCube(); */
-  /*   entity.x = 0; */
-  /*   entity.y = 0; */
-  /*   entity.type = kOther; */
-  /*   entity.position = glm::vec3(200.0, 0.0, 0.0); */
-  /*   entities.push_back(entity); */
-  /* } */
-
-  /* { */
-  /*   Entity entity; */
-  /*   entity.texture = planetTexture; */
-  /*   entity.scale = glm::vec3(2000.5, 2000.5, 2000.5); */
-  /*   entity.mesh = primitives.getSphere(); */
-  /*   entity.x = 0; */
-  /*   entity.type = kPlanet; */
-  /*   entity.y = 0; */
-  /*   entity.position = glm::vec3(-5500.0, -3500.0, 500.0); */
-  /*   entities.push_back(entity); */
-  /* } */
-
-  /* int xSize = 20; */
-  /* int ySize = 20; */
-  /* for (int x=0; x<xSize; x++) { */
-  /*   for (int y=0; y<ySize; y++) { */
-  /*     Entity entity; */
-  /*     entity.texture = texture; */
-  /*     entity.scale = glm::vec3(0.5, 0.5, 0.5); */
-  /*     entity.mesh = primitives.getCube(); */
-  /*     entity.type = kBlock; */
-  /*     entity.x = x-xSize/2; */
-  /*     entity.y = y-ySize/2; */
-  /*     entity.position = glm::vec3((x-xSize/2) * 1.5f, -4.0, (y-ySize/2) * 1.5f - 10.0f); */
-  /*     entities.push_back(entity); */
-  /*   } */
-  /* } */
 
   profiler.end();
 
@@ -368,17 +271,6 @@ void Game::update(float time) {
   }
 
   camera.updateMatrix();
-
-  for (auto it = entities.begin(); it != entities.end(); ++it) {
-    if (it->type == kPlanet) {
-      it->rotation[1] += 0.02 * time;
-    } else if (it->type == kAsteroid) {
-    } else if (it->type == kBlock) {
-      float position = cos(totalTime + it->x/10.0f);
-      position += sin(totalTime + it->y/10.0f);
-      it->position[1] = position * 10.0f;
-    }
-  }
   profiler.end();
 }
 

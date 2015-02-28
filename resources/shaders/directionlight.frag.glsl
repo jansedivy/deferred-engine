@@ -2,7 +2,6 @@
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
-uniform sampler2D positionTexture;
 
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
@@ -20,7 +19,6 @@ void main() {
 
   vec3 normalColor = decode(texture(normalTexture, uv));
   vec3 diffuseColor = texture(diffuseTexture, uv).xyz;
-  vec3 positionColor = texture(positionTexture, uv).xyz;
 
   float directionalLightWeighting = max(dot(normalColor, lightDirection), 0.0);
   vec3 result = lightColor * directionalLightWeighting;

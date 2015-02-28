@@ -4,7 +4,8 @@
 
 enum LightType {
   kPoint,
-  kDirectional
+  kDirectional,
+  kAmbient
 };
 
 class Light {

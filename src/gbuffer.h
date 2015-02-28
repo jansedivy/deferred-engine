@@ -5,10 +5,9 @@
 #include "common.h"
 
 enum kGBufferTexture {
-  kDiffuseTexturePosition = 0,
-  kNormalTexturePosition = 1,
-  kPositionTexturePosition = 2,
-  kFinalTexturePosition = 3
+  kDiffuseTexturePosition,
+  kNormalTexturePosition,
+  kFinalTexturePosition
 };
 
 class GBuffer {
@@ -17,7 +16,6 @@ class GBuffer {
     GLuint texture;
 
     GLuint normalTexture;
-    GLuint positionTexture;
     GLuint depthTexture;
     GLuint finalTexture;
 

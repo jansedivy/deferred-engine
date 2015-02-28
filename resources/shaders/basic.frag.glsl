@@ -1,6 +1,5 @@
 #version 330
 
-in vec4 vPosition;
 in vec2 texturePosition;
 in mat3 tbnMatrix;
 
@@ -13,7 +12,6 @@ uniform int hasNormalMap;
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 normalOut;
-layout (location = 2) out vec4 positionOut;
 
 vec4 encode(vec3 n) {
   return vec4(n.xyz * 0.5 + 0.5, 0.0);
@@ -32,5 +30,4 @@ void main() {
 
   fragColor = vec4(diff, 1.0);
   normalOut = encode(normalMap);
-  positionOut = vPosition;
 }
