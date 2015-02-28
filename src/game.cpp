@@ -82,7 +82,7 @@ void Game::init() {
   loader.startLoading();
   profiler.end();
 
-  primitives.gl = &gl;
+  primitives.setRenderer(&gl);
 
   debugDraw.init();
 

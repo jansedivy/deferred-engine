@@ -6,7 +6,8 @@
 class Primitives {
   public:
     Primitives();
-    Renderer *gl;
+
+    void setRenderer(Renderer *gl);
 
     Mesh* getCube();
     Mesh *getQuad();
@@ -15,4 +16,6 @@ class Primitives {
     Mesh *cube;
     Mesh *quad;
     Mesh *sphere;
+
+    Renderer *gl;
 };

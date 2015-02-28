@@ -6,6 +6,10 @@ Primitives::Primitives() {
   sphere = 0;
 }
 
+void Primitives::setRenderer(Renderer *gl) {
+  this->gl = gl;
+}
+
 Mesh *Primitives::getSphere() {
   if (sphere) { return sphere; }
 
