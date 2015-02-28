@@ -50,6 +50,8 @@ class Game {
 
     bool running;
 
+    float lightRadius;
+
     SDL_Window *window;
     Primitives primitives;
     Renderer gl;

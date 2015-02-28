@@ -1,7 +1,5 @@
 #include "error.h"
 
-#include <SDL.h>
-
 void showError(const char* title, const char* format, ...) {
   static const int size = 512;
   char message[size];

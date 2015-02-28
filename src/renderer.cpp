@@ -1,10 +1,20 @@
 #include "renderer.h"
 
+float getRandomFloat(float min, float max) {
+  return ((float)rand())/((float)RAND_MAX) * (max - min) + min;
+}
+
+float lerp(float start, float end, float time) {
+  return start + (end - start) * time;
+}
+
 void Renderer::init(int w, int h) {
   width = w;
   height = h;
 
   antiAlias = true;
+  ssao = true;
+  ssaoRadius = 5.0f;
 
   glewExperimental = GL_TRUE;
   glewInit();
@@ -18,6 +28,42 @@ void Renderer::init(int w, int h) {
   glBindVertexArray(vao);
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
+
+  kernelSize = 32;
+
+  kernel = new glm::vec3[kernelSize];
+  for (int i=0; i<kernelSize; i++) {
+    glm::vec3 value = glm::vec3(
+        getRandomFloat(-1.0f, 1.0f),
+        getRandomFloat(-1.0f, 1.0f),
+        getRandomFloat(0.0f, 1.0f));
+
+    value = glm::normalize(value);
+
+    float scale = float(i) / float(kernelSize);
+    value = value * lerp(0.1f, 1.0f, scale * scale);
+
+    kernel[i] = value;
+  }
+
+  noiseSize = 4;
+  for (int i=0; i<(noiseSize*noiseSize); i++) {
+    noise[i] = glm::vec3(
+        getRandomFloat(-1.0f, 1.0f),
+        getRandomFloat(-1.0f, 1.0f),
+        0.0f);
+    noise[i] = glm::normalize(noise[i]);
+  }
+
+  glGenTextures(1, &noiseId);
+  glBindTexture(GL_TEXTURE_2D, noiseId);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, noiseSize, noiseSize, 0, GL_RGB, GL_FLOAT, noise);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  printf("%d\n", noiseId);
 
   gbuffer.init(width, height);
 }
@@ -276,13 +322,38 @@ void Renderer::disableDepthWrite() {
   glDepthMask(GL_FALSE);
 }
 
-void Renderer::finalRender(Mesh *fullscreenMesh, Profiler *profiler) {
+void Renderer::finalRender(Mesh *fullscreenMesh, Profiler *profiler, Camera *camera) {
   if (antiAlias) {
     profiler->start("Anti-aliasing");
     shaderManager.use("fxaa");
       bindMesh(fullscreenMesh);
       shaderManager.current->texture("uSampler", gbuffer.finalTexture, 0);
       draw();
+    shaderManager.current->disable();
+    profiler->end();
+  }
+
+  if (ssao) {
+    profiler->start("SSAO");
+    shaderManager.use("ssao");
+    bindMesh(fullscreenMesh);
+
+    glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
+    shaderManager.current->setUniform("invProjection", invProjection);
+    shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
+
+    glUniform3fv(shaderManager.current->uniforms["kernel[0]"], kernelSize, (const GLfloat *)kernel);
+
+    shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
+    shaderManager.current->texture("uNormal", gbuffer.normalTexture, 1);
+    shaderManager.current->texture("noiseTexture", noiseId, 2);
+    shaderManager.current->texture("uPosition", gbuffer.positionTexture, 3);
+    shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
+
+    shaderManager.current->setUniform("noiseScale", noiseSize);
+    shaderManager.current->setUniform("uKernelSize", kernelSize);
+    shaderManager.current->setUniform("uRadius", ssaoRadius);
+    draw();
     shaderManager.current->disable();
     profiler->end();
   }

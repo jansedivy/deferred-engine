@@ -2,6 +2,7 @@
 
 void Game::init() {
   profiler.start("Game init");
+  lightRadius = 500.0f;
   width = 1280;
   height = (float)width * 9.0f/16.0f;
 
@@ -41,6 +42,7 @@ void Game::init() {
   profiler.start("loading shaders");
   gl.shaderManager.load("skybox", "shaders/skybox");
   gl.shaderManager.load("fxaa", "shaders/fxaa");
+  gl.shaderManager.load("ssao", "shaders/ssao");
   gl.shaderManager.load("directionlight", "shaders/directionlight");
   gl.shaderManager.load("pointshader", "shaders/pointshader");
   gl.shaderManager.load("debug", "shaders/debug");
@@ -109,6 +111,7 @@ void Game::init() {
     if (!it->normalName.empty()) {
       entity.normalMap = loader.get(it->normalName.c_str());
     }
+
     entity.type = kOther;
     entity.scale = glm::vec3(1.0, 1.0, 1.0);
     entity.mesh = it->mesh;
@@ -134,7 +137,7 @@ void Game::init() {
   }
 
   {
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<1; i++) {
       Light light;
       light.type = kPoint;
       light.radius = 100.0f;
@@ -272,7 +275,6 @@ void Game::update(float time) {
   profiler.start("Update");
   totalTime += time;
 
-  SDL_PumpEvents();
   SDL_Event event;
   SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -286,21 +288,27 @@ void Game::update(float time) {
       case SDL_QUIT:
         running = false;
         break;
+      case SDL_MOUSEWHEEL:
+        {
+          float value = (float)event.wheel.y;
+          lightRadius += value;
+          printf("light radius: %f\n", lightRadius);
+        } break;
       case SDL_MOUSEBUTTONDOWN:
         /* debugDraw.addLine(camera.position + camera.forward * 2.0f, camera.position + camera.forward * 1000.0f, 100); */
         {
           Light light;
           light.type = kPoint;
-          light.radius = 500.0f;
+          light.radius = lightRadius;
           light.position = camera.position;
           if (keyboardState[SDL_SCANCODE_LSHIFT]) {
+            light.color = glm::vec3(238.0/255.0, 230.0/255.0, 103.0/255.0);
+          } else {
             light.color = glm::vec3(
                 ((float)rand()/(float)RAND_MAX),
                 ((float)rand()/(float)RAND_MAX),
                 ((float)rand()/(float)RAND_MAX)
                 );
-          } else {
-            light.color = glm::vec3(238.0/255.0, 230.0/255.0, 103.0/255.0);
           }
           lights.push_back(light);
         }
@@ -309,7 +317,10 @@ void Game::update(float time) {
     }
   }
 
+  SDL_PumpEvents();
+
   gl.antiAlias = !keyboardState[SDL_SCANCODE_U];
+  gl.ssao = keyboardState[SDL_SCANCODE_Y];
 
   int relX, relY;
   SDL_GetRelativeMouseState(&relX, &relY);
@@ -462,7 +473,7 @@ void Game::render() {
   gl.drawSkybox(&skybox, &camera);
 
   gl.disableDepthRead();
-  gl.finalRender(fullscreenMesh, &profiler);
+  gl.finalRender(fullscreenMesh, &profiler, &camera);
 
   if (keyboardState[SDL_SCANCODE_O]) {
     gl.debugRendererGBuffer(&gl.gbuffer, fullscreenMesh);

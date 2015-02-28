@@ -132,8 +132,10 @@ unsigned char* Loader::loadImageData(const char *path, int *width, int *height) 
 }
 
 void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Renderer *gl) {
+  printf("Loadint mesh %s\n", path);
+
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_GenSmoothNormals);
+  const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
 
   if (!scene) {
     printf("Error: %s\n", importer.GetErrorString());

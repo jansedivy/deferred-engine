@@ -11,6 +11,7 @@
 #include "shader_manager.h"
 #include "light.h"
 #include "profiler.h"
+#include "common.h"
 
 class Renderer {
   public:
@@ -26,7 +27,7 @@ class Renderer {
     void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Mesh *fullscreenMesh, Camera *camera);
     void renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
 
-    void finalRender(Mesh *fullscreenMesh, Profiler *profiler);
+    void finalRender(Mesh *fullscreenMesh, Profiler *profiler, Camera *camera);
 
     void bindMesh(Mesh *mesh);
     void populateBuffers(Mesh *mesh);
@@ -43,10 +44,21 @@ class Renderer {
 
     GBuffer gbuffer;
 
+    int kernelSize;
+    glm::vec3 *kernel;
+
+    int noiseSize;
+    glm::vec3 noise[16];
+
+    GLuint noiseId;
+
     int width;
     int height;
 
     bool antiAlias;
+    bool ssao;
+    float ssaoRadius;
+
 
   private:
     Mesh *currentMesh;

@@ -16,8 +16,8 @@ Shader* ShaderManager::get(const char *name) {
 void ShaderManager::load(const char *name, const char *path) {
   std::string stringPath = path;
 
-  std::string vertexName = stringPath + ".vert";
-  std::string fragName = stringPath + ".frag";
+  std::string vertexName = stringPath + ".vert.glsl";
+  std::string fragName = stringPath + ".frag.glsl";
 
   std::string vertexSource = FileIO::loadFile(vertexName.c_str());
   std::string fragmentSource = FileIO::loadFile(fragName.c_str());
