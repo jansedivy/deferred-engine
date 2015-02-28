@@ -39,6 +39,9 @@ class Renderer {
     void enableDepthWrite();
     void disableDepthWrite();
 
+    void bindScreenAlignedQuad();
+    void drawScreenAlignedQuad();
+
     void drawSkybox(Skybox *skybox, Camera *camera);
     ShaderManager shaderManager;
 

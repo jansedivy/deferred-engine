@@ -185,34 +185,32 @@ void Renderer::renderFullscreenTexture(GLuint texture) {
     glViewport(0, 0, width, height);
     shaderManager.current->texture("uSampler", texture, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
-    glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    bindScreenAlignedQuad();
+    drawScreenAlignedQuad();
   shaderManager.current->disable();
 }
 
 void Renderer::debugRendererGBuffer(GBuffer *framebuffer) {
   shaderManager.use("fullscreen");
-    glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
-    glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+    bindScreenAlignedQuad();
 
     framebuffer->bindForReading();
 
     glViewport(0, 0, width/2, height/2);
     shaderManager.current->texture("uSampler", framebuffer->texture, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    drawScreenAlignedQuad();
 
     glViewport(width/2, 0, width/2, height/2);
     shaderManager.current->texture("uSampler", framebuffer->normalTexture, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    drawScreenAlignedQuad();
 
     glViewport(0, height/2, width/2, height/2);
     shaderManager.current->texture("uSampler", framebuffer->positionTexture, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    drawScreenAlignedQuad();
 
     glViewport(width/2, height/2, width/2, height/2);
     shaderManager.current->texture("uSampler", framebuffer->depthTexture, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    drawScreenAlignedQuad();
 
   shaderManager.current->disable();
 }
@@ -300,14 +298,13 @@ void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *pro
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
   shaderManager.current->texture("positionTexture", gbuffer.positionTexture, 2);
 
-  glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
-  glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+  bindScreenAlignedQuad();
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
     if (it->type == kDirectional) {
       shaderManager.current->setUniform("lightColor", it->color);
       shaderManager.current->setUniform("lightDirection", it->direction);
-      glDrawArrays(GL_TRIANGLES, 0, 6);
+      drawScreenAlignedQuad();
     }
   }
 
@@ -345,9 +342,8 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
     profiler->start("Anti-aliasing");
     shaderManager.use("fxaa");
       shaderManager.current->texture("uSampler", gbuffer.finalTexture, 0);
-      glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
-      glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
-      glDrawArrays(GL_TRIANGLES, 0, 6);
+      bindScreenAlignedQuad();
+      drawScreenAlignedQuad();
     shaderManager.current->disable();
     profiler->end();
   }
@@ -356,8 +352,7 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
     profiler->start("SSAO");
     shaderManager.use("ssao");
 
-    glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
-    glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+    bindScreenAlignedQuad();
 
     glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
     shaderManager.current->setUniform("invProjection", invProjection);
@@ -374,11 +369,20 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
     shaderManager.current->setUniform("noiseScale", noiseSize);
     shaderManager.current->setUniform("uKernelSize", kernelSize);
     shaderManager.current->setUniform("uRadius", ssaoRadius);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
     shaderManager.current->disable();
+    drawScreenAlignedQuad();
     profiler->end();
   }
 
   gbuffer.bindForReading();
   renderFullscreenTexture(gbuffer.finalTexture);
+}
+
+void Renderer::bindScreenAlignedQuad() {
+  glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+  glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+}
+
+void Renderer::drawScreenAlignedQuad() {
+  glDrawArrays(GL_TRIANGLES, 0, 6);
 }
