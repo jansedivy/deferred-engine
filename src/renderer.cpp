@@ -400,6 +400,12 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
 
   if (fog) {
     profiler->start("Fog");
+
+    glEnable(GL_STENCIL_TEST);
+
+    glStencilFunc(GL_EQUAL, 1, 1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
     shaderManager.use("fog");
       bindScreenAlignedQuad();
 
@@ -411,6 +417,9 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
 
       drawScreenAlignedQuad();
     shaderManager.current->disable();
+
+    glDisable(GL_STENCIL_TEST);
+
     profiler->end();
   }
 
