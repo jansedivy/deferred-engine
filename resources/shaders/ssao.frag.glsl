@@ -1,14 +1,14 @@
 #version 330
 
-#define CAP_MIN_DISTANCE 0.0001
-#define CAP_MAX_DISTANCE 0.005
-
 uniform sampler2D uDepth;
 uniform sampler2D uNormal;
 uniform sampler2D noiseTexture;
 uniform sampler2D diffuseTexture;
 uniform float noiseScale;
 uniform float uRadius;
+
+uniform float zNear = 0.1;
+uniform float zFar = 10000.0;
 
 uniform mat4 invProjection;
 
@@ -21,10 +21,11 @@ in vec2 pos;
 
 out vec4 fragColor;
 
-float linearDepth(vec2 coord) {
+float linearizeDepth(vec2 coord) {
   float depth = texture(uDepth, coord).r;
 
-  return depth;
+  depth = depth * 2.0 - 1.0;
+  return (2.0 * zNear) / (zFar + zNear - depth * (zFar - zNear));
 }
 
 vec4 getViewPos(vec2 texCoord) {
@@ -34,7 +35,7 @@ vec4 getViewPos(vec2 texCoord) {
   float y = texCoord.t * 2.0 - 1.0;
 
   // Assume we have a normal depth range between 0.0 and 1.0
-  float z = linearDepth(texCoord) * 2.0 - 1.0;
+  float z = linearizeDepth(texCoord);
 
   vec4 posProj = vec4(x, y, z, 1.0);
 
@@ -68,7 +69,7 @@ void main(void)
     samplePointNDC /= samplePointNDC.w;
 
     vec2 samplePointTexCoord = samplePointNDC.xy * 0.5 + 0.5;
-    float zSceneNDC = linearDepth(samplePointTexCoord) * 2.0 - 1.0;
+    float zSceneNDC = linearizeDepth(samplePointTexCoord);
 
     float rangeCheck = smoothstep(0.0, 1.0, uRadius / abs(samplePointNDC.z - zSceneNDC));
     occlusion += rangeCheck * step(zSceneNDC, samplePointNDC.z);
