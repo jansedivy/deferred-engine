@@ -8,6 +8,9 @@ in vec2 pos;
 uniform float zNear = 0.1;
 uniform float zFar = 10000.0;
 
+uniform vec3 fogColor;
+uniform float density;
+
 out vec4 fragColor;
 
 float linearizeDepth(float depth) {
@@ -21,9 +24,6 @@ void main() {
   float depth = linearizeDepth(texture(uDepth, uv).r);
 
   vec3 result = texture(uSampler, uv).zyx;
-
-  vec3 fogColor = vec3(1.0, 0.0, 0.0);
-  float density = -3.7;
 
   float fog = clamp(exp2(density * depth * depth * 1.442695), 0.0, 1.0);
   vec3 color = texture(uSampler, uv).rgb;

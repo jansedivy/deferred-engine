@@ -23,6 +23,9 @@ class Camera {
     float near;
     float far;
 
+    glm::vec3 fogColor;
+    float fogDensity;
+
     void updateMatrix();
     void calculateRightMovement();
     void setAspect(float aspect);

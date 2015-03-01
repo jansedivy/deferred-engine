@@ -412,6 +412,9 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
       shaderManager.current->setUniform("zNear", camera->near);
       shaderManager.current->setUniform("zFar", camera->far);
 
+      shaderManager.current->setUniform("fogColor", camera->fogColor);
+      shaderManager.current->setUniform("density", camera->fogDensity);
+
       shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
       shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
 

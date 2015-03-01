@@ -6,6 +6,9 @@ Camera::Camera() {
   fov = 70.0f;
   near = 0.1f;
   far = 10000.f;
+
+  fogColor = glm::vec3(0.2, 0.2, 0.4);
+  fogDensity = -3.7;
 }
 
 void Camera::setAspect(float aspect) {
