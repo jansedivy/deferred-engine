@@ -12,12 +12,12 @@ newmtl leaf
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_thorn_diff.tga
-  map_Kd sponza_thorn_diff.tga
-  map_Ks sponza_thorn_spec.tga
-  map_d sponza_thorn_mask.tga
-  map_bump sponza_thorn_ddn.tga
-  bump sponza_thorn_ddn.tga
+  map_Ka sponza_thorn_diff.dds
+  map_Kd sponza_thorn_diff.dds
+  map_Ks sponza_thorn_spec.dds
+  map_d sponza_thorn_mask.dds
+  map_bump sponza_thorn_ddn.dds
+  bump sponza_thorn_ddn.dds
 
 newmtl vase_round
   Ns 10.0000
@@ -30,11 +30,11 @@ newmtl vase_round
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka vase_round.tga
-  map_Kd vase_round.tga
-  map_Ks vase_round_spec.tga
-  map_bump vase_round_ddn.tga
-  bump vase_round_ddn.tga
+  map_Ka vase_round.dds
+  map_Kd vase_round.dds
+  map_Ks vase_round_spec.dds
+  map_bump vase_round_ddn.dds
+  bump vase_round_ddn.dds
 
 newmtl Material__57
   Ns 10.0000
@@ -47,10 +47,10 @@ newmtl Material__57
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka vase_plant.tga
-  map_Kd vase_plant.tga
-  map_Ks vase_plant_spec.tga
-  map_d vase_plant_mask.tga
+  map_Ka vase_plant.dds
+  map_Kd vase_plant.dds
+  map_Ks vase_plant_spec.dds
+  map_d vase_plant_mask.dds
 
 newmtl Material__298
   Ns 10.0000
@@ -63,10 +63,10 @@ newmtl Material__298
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka background.tga
-  map_Kd background.tga
-  map_bump background_ddn.tga
-  bump background_ddn.tga
+  map_Ka background.dds
+  map_Kd background.dds
+  map_bump background_ddn.dds
+  bump background_ddn.dds
 
 newmtl 16___Default
   Ns 10.0000
@@ -79,8 +79,8 @@ newmtl 16___Default
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka gi_flag.tga
-  map_Kd gi_flag.tga
+  map_Ka gi_flag.dds
+  map_Kd gi_flag.dds
 
 newmtl bricks
   Ns 10.0000
@@ -93,11 +93,11 @@ newmtl bricks
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka spnza_bricks_a_diff.tga
-  map_Kd spnza_bricks_a_diff.tga
-  map_Ks spnza_bricks_a_spec.tga
-  map_bump spnza_bricks_a_ddn.tga
-  bump spnza_bricks_a_ddn.tga
+  map_Ka spnza_bricks_a_diff.dds
+  map_Kd spnza_bricks_a_diff.dds
+  map_Ks spnza_bricks_a_spec.dds
+  map_bump spnza_bricks_a_ddn.dds
+  bump spnza_bricks_a_ddn.dds
 
 newmtl arch
   Ns 10.0000
@@ -110,9 +110,9 @@ newmtl arch
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_arch_diff.tga
-  map_Kd sponza_arch_diff.tga
-  map_Ks sponza_arch_spec.tga
+  map_Ka sponza_arch_diff.dds
+  map_Kd sponza_arch_diff.dds
+  map_Ks sponza_arch_spec.dds
 
 newmtl ceiling
   Ns 10.0000
@@ -125,9 +125,9 @@ newmtl ceiling
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_ceiling_a_diff.tga
-  map_Kd sponza_ceiling_a_diff.tga
-  map_Ks sponza_ceiling_a_spec.tga
+  map_Ka sponza_ceiling_a_diff.dds
+  map_Kd sponza_ceiling_a_diff.dds
+  map_Ks sponza_ceiling_a_spec.dds
 
 newmtl column_a
   Ns 10.0000
@@ -140,11 +140,11 @@ newmtl column_a
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_column_a_diff.tga
-  map_Kd sponza_column_a_diff.tga
-  map_Ks sponza_column_a_spec.tga
-  map_bump sponza_column_a_ddn.tga
-  bump sponza_column_a_ddn.tga
+  map_Ka sponza_column_a_diff.dds
+  map_Kd sponza_column_a_diff.dds
+  map_Ks sponza_column_a_spec.dds
+  map_bump sponza_column_a_ddn.dds
+  bump sponza_column_a_ddn.dds
 
 newmtl floor
   Ns 10.0000
@@ -157,9 +157,9 @@ newmtl floor
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_floor_a_diff.tga
-  map_Kd sponza_floor_a_diff.tga
-  map_Ks sponza_floor_a_spec.tga
+  map_Ka sponza_floor_a_diff.dds
+  map_Kd sponza_floor_a_diff.dds
+  map_Ks sponza_floor_a_spec.dds
 
 newmtl column_c
   Ns 10.0000
@@ -172,11 +172,11 @@ newmtl column_c
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_column_c_diff.tga
-  map_Kd sponza_column_c_diff.tga
-  map_Ks sponza_column_c_spec.tga
-  map_bump sponza_column_c_ddn.tga
-  bump sponza_column_c_ddn.tga
+  map_Ka sponza_column_c_diff.dds
+  map_Kd sponza_column_c_diff.dds
+  map_Ks sponza_column_c_spec.dds
+  map_bump sponza_column_c_ddn.dds
+  bump sponza_column_c_ddn.dds
 
 newmtl details
   Ns 10.0000
@@ -189,9 +189,9 @@ newmtl details
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_details_diff.tga
-  map_Kd sponza_details_diff.tga
-  map_Ks sponza_details_spec.tga
+  map_Ka sponza_details_diff.dds
+  map_Kd sponza_details_diff.dds
+  map_Ks sponza_details_spec.dds
 
 newmtl column_b
   Ns 10.0000
@@ -204,11 +204,11 @@ newmtl column_b
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_column_b_diff.tga
-  map_Kd sponza_column_b_diff.tga
-  map_Ks sponza_column_b_spec.tga
-  map_bump sponza_column_b_ddn.tga
-  bump sponza_column_b_ddn.tga
+  map_Ka sponza_column_b_diff.dds
+  map_Kd sponza_column_b_diff.dds
+  map_Ks sponza_column_b_spec.dds
+  map_bump sponza_column_b_ddn.dds
+  bump sponza_column_b_ddn.dds
 
 newmtl Material__47
   Ns 10.0000
@@ -233,9 +233,9 @@ newmtl flagpole
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_flagpole_diff.tga
-  map_Kd sponza_flagpole_diff.tga
-  map_Ks sponza_flagpole_spec.tga
+  map_Ka sponza_flagpole_diff.dds
+  map_Kd sponza_flagpole_diff.dds
+  map_Ks sponza_flagpole_spec.dds
 
 newmtl fabric_e
   Ns 10.0000
@@ -248,9 +248,9 @@ newmtl fabric_e
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_fabric_green_diff.tga
-  map_Kd sponza_fabric_green_diff.tga
-  map_Ks sponza_fabric_spec.tga
+  map_Ka sponza_fabric_green_diff.dds
+  map_Kd sponza_fabric_green_diff.dds
+  map_Ks sponza_fabric_spec.dds
 
 newmtl fabric_d
   Ns 10.0000
@@ -263,9 +263,9 @@ newmtl fabric_d
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_fabric_blue_diff.tga
-  map_Kd sponza_fabric_blue_diff.tga
-  map_Ks sponza_fabric_spec.tga
+  map_Ka sponza_fabric_blue_diff.dds
+  map_Kd sponza_fabric_blue_diff.dds
+  map_Ks sponza_fabric_spec.dds
 
 newmtl fabric_a
   Ns 10.0000
@@ -278,9 +278,9 @@ newmtl fabric_a
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_fabric_diff.tga
-  map_Kd sponza_fabric_diff.tga
-  map_Ks sponza_fabric_spec.tga
+  map_Ka sponza_fabric_diff.dds
+  map_Kd sponza_fabric_diff.dds
+  map_Ks sponza_fabric_spec.dds
 
 newmtl fabric_g
   Ns 10.0000
@@ -293,8 +293,8 @@ newmtl fabric_g
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_curtain_blue_diff.tga
-  map_Kd sponza_curtain_blue_diff.tga
+  map_Ka sponza_curtain_blue_diff.dds
+  map_Kd sponza_curtain_blue_diff.dds
 
 newmtl fabric_c
   Ns 10.0000
@@ -307,8 +307,8 @@ newmtl fabric_c
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_curtain_diff.tga
-  map_Kd sponza_curtain_diff.tga
+  map_Ka sponza_curtain_diff.dds
+  map_Kd sponza_curtain_diff.dds
 
 newmtl fabric_f
   Ns 10.0000
@@ -321,8 +321,8 @@ newmtl fabric_f
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_curtain_green_diff.tga
-  map_Kd sponza_curtain_green_diff.tga
+  map_Ka sponza_curtain_green_diff.dds
+  map_Kd sponza_curtain_green_diff.dds
 
 newmtl chain
   Ns 10.0000
@@ -335,11 +335,11 @@ newmtl chain
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka chain_texture.tga
-  map_Kd chain_texture.tga
-  map_d chain_texture_mask.tga
-  map_bump chain_texture_ddn.tga
-  bump chain_texture_ddn.tga
+  map_Ka chain_texture.dds
+  map_Kd chain_texture.dds
+  map_d chain_texture_mask.dds
+  map_bump chain_texture_ddn.dds
+  bump chain_texture_ddn.dds
 
 newmtl vase_hanging
   Ns 10.0000
@@ -352,8 +352,8 @@ newmtl vase_hanging
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka vase_hanging.tga
-  map_Kd vase_hanging.tga
+  map_Ka vase_hanging.dds
+  map_Kd vase_hanging.dds
 
 newmtl vase
   Ns 10.0000
@@ -366,8 +366,8 @@ newmtl vase
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka vase_dif.tga
-  map_Kd vase_dif.tga
+  map_Ka vase_dif.dds
+  map_Kd vase_dif.dds
 
 newmtl Material__25
   Ns 10.0000
@@ -380,10 +380,10 @@ newmtl Material__25
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka lion.tga
-  map_Kd lion.tga
-  map_bump lion_ddn.tga
-  bump lion_ddn.tga
+  map_Ka lion.dds
+  map_Kd lion.dds
+  map_bump lion_ddn.dds
+  bump lion_ddn.dds
 
 newmtl roof
   Ns 10.0000
@@ -396,5 +396,5 @@ newmtl roof
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Ka sponza_roof_diff.tga
-  map_Kd sponza_roof_diff.tga
+  map_Ka sponza_roof_diff.dds
+  map_Kd sponza_roof_diff.dds

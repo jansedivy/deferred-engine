@@ -55,10 +55,10 @@ void Game::init() {
 
   profiler.start("loading textures");
   /* loader.addTexture("AM3.jpg"); */
-  loader.addTexture(std::string("img.png"));
-  loader.addTexture(std::string("planet.png"));
+  loader.addTexture(std::string("img.dds"));
+  loader.addTexture(std::string("planet.dds"));
   /* loader.addTexture("marble1.jpg"); */
-  loader.addTexture("default.png");
+  loader.addTexture("default.dds");
   loader.addTexture(std::string("normal.jpg"));
   loader.addTexture(std::string("spec.tga"));
   loader.addTexture(std::string("bricks.jpg"));
@@ -73,12 +73,12 @@ void Game::init() {
   profiler.end();
 
   std::vector<const char*> faces;
-  faces.push_back("right.png");
-  faces.push_back("left.png");
-  faces.push_back("top.png");
-  faces.push_back("bottom.png");
-  faces.push_back("back.png");
-  faces.push_back("front.png");
+  faces.push_back("right.dds");
+  faces.push_back("left.dds");
+  faces.push_back("top.dds");
+  faces.push_back("bottom.dds");
+  faces.push_back("back.dds");
+  faces.push_back("front.dds");
 
   loader.addCubemap("galaxySkybox", &faces);
 
@@ -93,8 +93,8 @@ void Game::init() {
   skybox.mesh = primitives.getCube();
 
   Texture *asteroidTexture = loader.get("bricks.jpg");
-  Texture *texture = loader.get("img.png");
-  Texture *planetTexture = loader.get("planet.png");
+  Texture *texture = loader.get("img.dds");
+  Texture *planetTexture = loader.get("planet.dds");
 
   profiler.start("adding objects to scene");
   for (auto it = sponza.begin(); it != sponza.end(); it++) {
@@ -102,7 +102,7 @@ void Game::init() {
     if (!it->textureName.empty()) {
       entity.texture = loader.get(it->textureName.c_str());
     } else {
-      entity.texture = loader.get("default.png");
+      entity.texture = loader.get("default.dds");
     }
 
     entity.normalMap = NULL;
