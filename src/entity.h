@@ -24,6 +24,7 @@ class Entity {
     Texture *texture;
     Texture *normalMap;
     Texture *specularTexture;
+    Texture *alphaTexture;
 
     int x;
     int y;

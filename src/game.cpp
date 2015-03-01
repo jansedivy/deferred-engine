@@ -62,6 +62,7 @@ void Game::init() {
   loader.addTexture(std::string("normal.jpg"));
   loader.addTexture(std::string("spec.dds"));
   loader.addTexture(std::string("bricks.jpg"));
+  loader.addTexture(std::string("alpha.dds"));
 
   profiler.start("loading meshes");
   std::vector<LoadedMesh> meshes;
@@ -116,6 +117,12 @@ void Game::init() {
       entity.specularTexture = loader.get(it->specularName.c_str());
     } else {
       entity.specularTexture = loader.get("spec.dds");
+    }
+
+    if (!it->alphaName.empty()) {
+      entity.alphaTexture = loader.get(it->alphaName.c_str());
+    } else {
+      entity.alphaTexture = loader.get("alpha.dds");
     }
 
     entity.type = kOther;
@@ -335,6 +342,8 @@ void Game::renderFromCamera(Camera *camera) {
     } else {
       gl.shaderManager.current->setUniform("hasNormalMap", 0);
     }
+
+    gl.shaderManager.current->texture("uAlpha", it->alphaTexture->id, 3);
 
     glm::mat3 normal = glm::inverseTranspose(glm::mat3(modelView));
     gl.shaderManager.current->setUniform("uNMatrix", normal);

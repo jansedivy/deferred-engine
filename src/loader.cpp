@@ -180,6 +180,19 @@ void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Rendere
         texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
       }
     }
+
+    {
+      int texIndex = 0;
+      aiString path;
+
+      aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_OPACITY, texIndex, &path);
+      while (texFound == AI_SUCCESS) {
+        std::string fullPath = std::string(path.data);
+        addTexture(fullPath);
+        texIndex++;
+        texFound = scene->mMaterials[m]->GetTexture(aiTextureType_OPACITY, texIndex, &path);
+      }
+    }
   }
 
 
@@ -224,6 +237,7 @@ void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Rendere
       std::string textureName;
       std::string normalName;
       std::string specularName;
+      std::string alphaName;
 
       if (scene->HasMaterials()) {
         const aiMaterial* material = scene->mMaterials[meshData->mMaterialIndex];
@@ -241,6 +255,10 @@ void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Rendere
         if (material->GetTextureCount(aiTextureType_SPECULAR) > 0 && material->GetTexture(aiTextureType_SPECULAR, 0, &texturePath) == AI_SUCCESS) {
           specularName = std::string(texturePath.data);
         }
+
+        if (material->GetTextureCount(aiTextureType_OPACITY) > 0 && material->GetTexture(aiTextureType_OPACITY, 0, &texturePath) == AI_SUCCESS) {
+          alphaName = std::string(texturePath.data);
+        }
       }
 
       gl->populateBuffers(mesh);
@@ -252,6 +270,7 @@ void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Rendere
       loaded.textureName = textureName;
       loaded.normalName = normalName;
       loaded.specularName = specularName;
+      loaded.alphaName = alphaName;
 
       meshes->push_back(loaded);
     }

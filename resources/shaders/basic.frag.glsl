@@ -8,6 +8,7 @@ in vec3 inNormals;
 uniform sampler2D uSampler;
 uniform sampler2D uNormalMap;
 uniform sampler2D uSpecular;
+uniform sampler2D uAlpha;
 
 uniform int hasNormalMap;
 
@@ -28,7 +29,13 @@ void main() {
     normalMap = normalize(inNormals);
   }
 
-  fragColor = vec4(texture(uSampler, texturePosition).xyz, 1.0);
-  normalOut = encode(normalMap);
-  specularOut = vec4(texture(uSpecular, texturePosition).xyz, 1.0);
+  float alpha = texture(uAlpha, texturePosition).x;
+
+  if (alpha == 0.0) {
+    discard;
+  }
+
+  fragColor = vec4(texture(uSampler, texturePosition).xyz, alpha);
+  normalOut = vec4(encode(normalMap).xyz, alpha);
+  specularOut = vec4(texture(uSpecular, texturePosition).xyz, alpha);
 }
