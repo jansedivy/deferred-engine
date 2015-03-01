@@ -213,7 +213,7 @@ void Game::update(float time) {
 
   gl.antiAlias = !keyboardState[SDL_SCANCODE_U];
   gl.ssao = keyboardState[SDL_SCANCODE_Y];
-  gl.fog = keyboardState[SDL_SCANCODE_T];
+  gl.fog = !keyboardState[SDL_SCANCODE_T];
 
   int relX, relY;
   SDL_GetRelativeMouseState(&relX, &relY);
