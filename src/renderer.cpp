@@ -15,6 +15,7 @@ void Renderer::init(int w, int h) {
   antiAlias = true;
   ssao = true;
   ssaoRadius = 5.0f;
+  fog = true;
 
   glewExperimental = GL_TRUE;
   glewInit();
@@ -356,6 +357,7 @@ void Renderer::disableDepthWrite() {
 }
 
 void Renderer::finalRender(Profiler *profiler, Camera *camera) {
+  profiler->start("Post processing");
   if (antiAlias) {
     profiler->start("Anti-aliasing");
     shaderManager.use("fxaa");
@@ -386,13 +388,38 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
     shaderManager.current->setUniform("noiseScale", noiseSize);
     shaderManager.current->setUniform("uKernelSize", kernelSize);
     shaderManager.current->setUniform("uRadius", ssaoRadius);
-    shaderManager.current->disable();
+
+    shaderManager.current->setUniform("zNear", camera->near);
+    shaderManager.current->setUniform("zFar", camera->far);
+
     drawScreenAlignedQuad();
+
+    shaderManager.current->disable();
     profiler->end();
   }
 
+  if (fog) {
+    profiler->start("Fog");
+    shaderManager.use("fog");
+      bindScreenAlignedQuad();
+
+      shaderManager.current->setUniform("zNear", camera->near);
+      shaderManager.current->setUniform("zFar", camera->far);
+
+      shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
+      shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
+
+      drawScreenAlignedQuad();
+    shaderManager.current->disable();
+    profiler->end();
+  }
+
+  profiler->start("Final");
   gbuffer.bindForReading();
   renderFullscreenTexture(gbuffer.finalTexture);
+  profiler->end();
+
+  profiler->end();
 }
 
 void Renderer::bindScreenAlignedQuad() {

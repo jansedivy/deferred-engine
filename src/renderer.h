@@ -63,6 +63,8 @@ class Renderer {
     bool ssao;
     float ssaoRadius;
 
+    bool fog;
+
     GLuint screenAlignedQuad;
 
   private:

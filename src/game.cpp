@@ -43,6 +43,7 @@ void Game::init() {
   gl.shaderManager.load("skybox", "shaders/skybox");
   gl.shaderManager.load("fxaa", "shaders/fxaa");
   gl.shaderManager.load("ssao", "shaders/ssao");
+  gl.shaderManager.load("fog", "shaders/fog");
   gl.shaderManager.load("directionlight", "shaders/directionlight");
   gl.shaderManager.load("ambientlight", "shaders/ambientlight");
   gl.shaderManager.load("pointshader", "shaders/pointshader");
@@ -220,6 +221,7 @@ void Game::update(float time) {
 
   gl.antiAlias = !keyboardState[SDL_SCANCODE_U];
   gl.ssao = keyboardState[SDL_SCANCODE_Y];
+  gl.fog = keyboardState[SDL_SCANCODE_T];
 
   int relX, relY;
   SDL_GetRelativeMouseState(&relX, &relY);
