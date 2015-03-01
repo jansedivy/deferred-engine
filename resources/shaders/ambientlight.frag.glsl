@@ -13,5 +13,5 @@ void main() {
 
   vec3 diffuseColor = texture(diffuseTexture, uv).xyz;
 
-  fragColor = vec4(diffuseColor, 1.0) * vec4(lightColor, 1.0);
+  fragColor = vec4(diffuseColor * lightColor, 1.0);
 }

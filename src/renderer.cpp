@@ -296,7 +296,7 @@ void Renderer::renderAmbientLight(std::vector<Light> *lights, Profiler *profiler
   bindScreenAlignedQuad();
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
-    if (it->type == kDirectional) {
+    if (it->type == kAmbient) {
       shaderManager.current->setUniform("lightColor", it->color);
       drawScreenAlignedQuad();
     }
