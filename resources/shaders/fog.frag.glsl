@@ -22,5 +22,11 @@ void main() {
 
   vec3 result = texture(uSampler, uv).zyx;
 
-  fragColor = vec4(depth, depth, depth, 1.0);
+  vec3 fogColor = vec3(1.0, 0.0, 0.0);
+  float density = -3.7;
+
+  float fog = clamp(exp2(density * depth * depth * 1.442695), 0.0, 1.0);
+  vec3 color = texture(uSampler, uv).rgb;
+
+  fragColor = vec4(mix(fogColor, color, fog), 1.0);
 }
