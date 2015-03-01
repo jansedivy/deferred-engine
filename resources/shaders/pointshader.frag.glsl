@@ -40,8 +40,7 @@ void main() {
   float n_dot_l = clamp(dot(light_dir, normalColor), 0.0, 1.0);
   vec3 diffuse = lightColor * n_dot_l;
 
-
-  vec3 directionToEye = normalize(view_pos.xyz - camera);
+  vec3 directionToEye = normalize(camera - view_pos.xyz);
   vec3 reflectDirection = normalize(reflect(light_dir, normalColor));
 
   float specularPower = 16.0;
@@ -49,10 +48,10 @@ void main() {
 
   vec4 specularColor = vec4(0.0, 0.0, 0.0, 0.0);
   float specularFactor = dot(directionToEye, reflectDirection);
-  specularFactor = clamp(pow(specularFactor, specularPower), 0.0, 1.0);
+  specularFactor = pow(specularFactor, specularPower);
 
   if (specularFactor > 0) {
-    specularColor = vec4(lightColor, 1.0) * specularIntensity * specularFactor * specularMap;
+    specularColor = vec4(lightColor, 1.0) * specularIntensity * specularFactor * specularMap * n_dot_l;
   }
 
   fragColor = attenuation * (specularColor + vec4(diffuse, 1.0)) * vec4(diffuseColor, 1.0);
