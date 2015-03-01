@@ -60,7 +60,7 @@ void Game::init() {
   /* loader.addTexture("marble1.jpg"); */
   loader.addTexture("default.dds");
   loader.addTexture(std::string("normal.jpg"));
-  loader.addTexture(std::string("spec.tga"));
+  loader.addTexture(std::string("spec.dds"));
   loader.addTexture(std::string("bricks.jpg"));
 
   profiler.start("loading meshes");
@@ -115,7 +115,7 @@ void Game::init() {
     if (!it->specularName.empty()) {
       entity.specularTexture = loader.get(it->specularName.c_str());
     } else {
-      entity.specularTexture = loader.get("spec.tga");
+      entity.specularTexture = loader.get("spec.dds");
     }
 
     entity.type = kOther;
