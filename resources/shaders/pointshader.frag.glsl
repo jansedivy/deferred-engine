@@ -3,6 +3,7 @@
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D depthTexture;
+uniform sampler2D specularTexture;
 
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
@@ -23,6 +24,7 @@ void main() {
 
   vec3 normalColor = normalize(decode(texture(normalTexture, uv)));
   vec3 diffuseColor = texture(diffuseTexture, uv).xyz;
+  float specularMap = texture(specularTexture, uv).x;
   float depth = texture(depthTexture, uv).x;
 
   vec4 view_pos = vec4(uv*2.0-1.0, depth*2.0 - 1.0, 1.0);
@@ -50,7 +52,7 @@ void main() {
   specularFactor = clamp(pow(specularFactor, specularPower), 0.0, 1.0);
 
   if (specularFactor > 0) {
-    specularColor = vec4(lightColor, 1.0) * specularIntensity * specularFactor;
+    specularColor = vec4(lightColor, 1.0) * specularIntensity * specularFactor * specularMap;
   }
 
   fragColor = attenuation * (specularColor + vec4(diffuse, 1.0)) * vec4(diffuseColor, 1.0);

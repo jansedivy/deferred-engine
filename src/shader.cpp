@@ -1,9 +1,7 @@
 #include "shader.h"
 
-Shader::Shader(std::string vertexPath, std::string fragmentPath, std::string vertexSource, std::string fragmentSource) {
-  lastWriteVertex  = FileIO::getLastWriteTime(vertexPath.c_str());
-  lastWriteFragment = FileIO::getLastWriteTime(fragmentPath.c_str());
-
+Shader::Shader(std::string shaderName, std::string vertexSource, std::string fragmentSource) {
+  this->shaderName = shaderName;
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   const char *vertex = vertexSource.c_str();
   glShaderSource(vertexShader, 1, &vertex, NULL);
@@ -110,7 +108,7 @@ void Shader::checkError(int shader, bool isProgram) {
       glGetShaderInfoLog(shader, logLength, NULL, &errorMessage[0]);
     }
 
-    printf("%s\n", &errorMessage[0]);
+    showError("Shader error", "Shader: %s: %s\n", shaderName.c_str(), &errorMessage[0]);
   }
 }
 
@@ -132,15 +130,4 @@ void Shader::addUniform(const char *name) {
   }
 
   uniforms[name] = id;
-}
-
-void Shader::tryReload() {
-  /* time_t nowVertex = FileIO::getLastWriteTime(vertexPath.c_str()); */
-  /* time_t nowFragment = FileIO::getLastWriteTime(fragmentPath.c_str()); */
-
-  /* if (nowVertex > lastWriteVertex || nowFragment > lastWriteFragment) { */
-  /*   lastWriteVertex = nowVertex; */
-  /*   lastWriteFragment = nowFragment; */
-  /*   /1* reload(); *1/ */
-  /* } */
 }

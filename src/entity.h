@@ -20,8 +20,10 @@ class Entity {
     glm::vec3 rotation;
     glm::vec3 color;
     glm::vec3 scale;
+
     Texture *texture;
     Texture *normalMap;
+    Texture *specularTexture;
 
     int x;
     int y;

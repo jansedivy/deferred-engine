@@ -33,6 +33,7 @@ struct LoadedMesh {
   Mesh *mesh;
   std::string textureName;
   std::string normalName;
+  std::string specularName;
 };
 
 class Loader {

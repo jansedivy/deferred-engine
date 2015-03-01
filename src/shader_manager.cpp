@@ -22,7 +22,7 @@ void ShaderManager::load(const char *name, const char *path) {
   std::string vertexSource = FileIO::loadFile(vertexName.c_str());
   std::string fragmentSource = FileIO::loadFile(fragName.c_str());
 
-  shaders[std::string(name)] = new Shader(vertexName, fragName, vertexSource, fragmentSource);
+  shaders[std::string(name)] = new Shader(std::string(name), vertexSource, fragmentSource);
 }
 
 void ShaderManager::use(const char *name) {

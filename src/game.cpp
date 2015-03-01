@@ -60,6 +60,7 @@ void Game::init() {
   /* loader.addTexture("marble1.jpg"); */
   loader.addTexture("default.png");
   loader.addTexture(std::string("normal.jpg"));
+  loader.addTexture(std::string("spec.tga"));
   loader.addTexture(std::string("bricks.jpg"));
 
   profiler.start("loading meshes");
@@ -105,9 +106,16 @@ void Game::init() {
     }
 
     entity.normalMap = NULL;
+    entity.specularTexture = NULL;
 
     if (!it->normalName.empty()) {
       entity.normalMap = loader.get(it->normalName.c_str());
+    }
+
+    if (!it->specularName.empty()) {
+      entity.specularTexture = loader.get(it->specularName.c_str());
+    } else {
+      entity.specularTexture = loader.get("spec.tga");
     }
 
     entity.type = kOther;
@@ -319,8 +327,10 @@ void Game::renderFromCamera(Camera *camera) {
       gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
     }
 
+    gl.shaderManager.current->texture("uSpecular", it->specularTexture->id, 1);
+
     if (it->normalMap != NULL) {
-      gl.shaderManager.current->texture("uNormalMap", it->normalMap->id, 1);
+      gl.shaderManager.current->texture("uNormalMap", it->normalMap->id, 2);
       gl.shaderManager.current->setUniform("hasNormalMap", 1);
     } else {
       gl.shaderManager.current->setUniform("hasNormalMap", 0);

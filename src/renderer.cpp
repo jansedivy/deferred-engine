@@ -206,7 +206,7 @@ void Renderer::debugRendererGBuffer(GBuffer *framebuffer) {
     drawScreenAlignedQuad();
 
     glViewport(width/2, height/2, width/2, height/2);
-    shaderManager.current->texture("uSampler", framebuffer->depthTexture, 0);
+    shaderManager.current->texture("uSampler", framebuffer->specularTexture, 0);
     drawScreenAlignedQuad();
 
   shaderManager.current->disable();
@@ -256,6 +256,7 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
 
   shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
   shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
+  shaderManager.current->texture("specularTexture", gbuffer.specularTexture, 2);
   shaderManager.current->texture("depthTexture", gbuffer.depthTexture, 3);
 
   shaderManager.current->setUniform("camera", camera->position);

@@ -7,6 +7,7 @@
 enum kGBufferTexture {
   kDiffuseTexturePosition,
   kNormalTexturePosition,
+  kSpecularTexturePosition,
   kFinalTexturePosition
 };
 
@@ -17,6 +18,7 @@ class GBuffer {
 
     GLuint normalTexture;
     GLuint depthTexture;
+    GLuint specularTexture;
     GLuint finalTexture;
 
     void init(int width, int height);

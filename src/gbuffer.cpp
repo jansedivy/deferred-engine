@@ -27,6 +27,16 @@ void GBuffer::init(int w, int h) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+  // specular
+  glGenTextures(1, &specularTexture);
+  glBindTexture(GL_TEXTURE_2D, specularTexture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + kSpecularTexturePosition, GL_TEXTURE_2D, specularTexture, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
   // final
   glGenTextures(1, &finalTexture);
   glBindTexture(GL_TEXTURE_2D, finalTexture);
@@ -48,6 +58,7 @@ void GBuffer::init(int w, int h) {
 
   buffers[kDiffuseTexturePosition] = GL_COLOR_ATTACHMENT0 + kDiffuseTexturePosition;
   buffers[kNormalTexturePosition] = GL_COLOR_ATTACHMENT0 + kNormalTexturePosition;
+  buffers[kSpecularTexturePosition] = GL_COLOR_ATTACHMENT0 + kSpecularTexturePosition;
   buffers[kFinalTexturePosition] = GL_COLOR_ATTACHMENT0 + kFinalTexturePosition;
 
   glBindTexture(GL_TEXTURE_2D, 0);
