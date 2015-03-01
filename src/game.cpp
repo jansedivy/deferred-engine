@@ -54,17 +54,12 @@ void Game::init() {
   profiler.end();
 
   profiler.start("loading textures");
-  /* loader.addTexture("AM3.jpg"); */
-  loader.addTexture(std::string("img.dds"));
-  loader.addTexture(std::string("planet.dds"));
-  /* loader.addTexture("marble1.jpg"); */
-  loader.addTexture("default.dds");
-  loader.addTexture(std::string("normal.jpg"));
+  loader.addTexture(std::string("default.dds"));
   loader.addTexture(std::string("spec.dds"));
-  loader.addTexture(std::string("bricks.jpg"));
   loader.addTexture(std::string("alpha.dds"));
 
   profiler.start("loading meshes");
+
   std::vector<LoadedMesh> meshes;
   loader.loadMesh("mesh.obj", &meshes, &gl);
 
@@ -92,10 +87,6 @@ void Game::init() {
 
   skybox.texture = loader.get("galaxySkybox");
   skybox.mesh = primitives.getCube();
-
-  Texture *asteroidTexture = loader.get("bricks.jpg");
-  Texture *texture = loader.get("img.dds");
-  Texture *planetTexture = loader.get("planet.dds");
 
   profiler.start("adding objects to scene");
   for (auto it = sponza.begin(); it != sponza.end(); it++) {
@@ -312,8 +303,6 @@ void Game::renderFromCamera(Camera *camera) {
 
   Texture *textureCache[8];
 
-  Texture *normalTexture = loader.get("normal.jpg");
-
   int count = 0;
 
   for (auto it = entities.begin(); it != entities.end(); ++it) {
@@ -330,20 +319,16 @@ void Game::renderFromCamera(Camera *camera) {
     modelView = glm::rotate(modelView, it->rotation.z, glm::vec3(0.0, 0.0, 1.0));
     modelView = glm::scale(modelView, it->scale);
 
-    if (it->texture) {
-      gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
-    }
-
+    gl.shaderManager.current->texture("uSampler", it->texture->id, 0);
     gl.shaderManager.current->texture("uSpecular", it->specularTexture->id, 1);
+    gl.shaderManager.current->texture("uAlpha", it->alphaTexture->id, 2);
 
     if (it->normalMap != NULL) {
-      gl.shaderManager.current->texture("uNormalMap", it->normalMap->id, 2);
+      gl.shaderManager.current->texture("uNormalMap", it->normalMap->id, 3);
       gl.shaderManager.current->setUniform("hasNormalMap", 1);
     } else {
       gl.shaderManager.current->setUniform("hasNormalMap", 0);
     }
-
-    gl.shaderManager.current->texture("uAlpha", it->alphaTexture->id, 3);
 
     glm::mat3 normal = glm::inverseTranspose(glm::mat3(modelView));
     gl.shaderManager.current->setUniform("uNMatrix", normal);
