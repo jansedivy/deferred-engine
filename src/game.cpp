@@ -120,16 +120,8 @@ void Game::init() {
 
   {
     Light light;
-    light.type = kDirectional;
-    light.color = glm::vec3(0.2, 0.2, 0.2);
-    light.direction = glm::vec3(0.0, 1.0, 0.0);
-    lights.push_back(light);
-  }
-
-  {
-    Light light;
     light.type = kAmbient;
-    light.color = glm::vec3(0.3, 0.3, 0.3);
+    light.color = glm::vec3(0.1, 0.1, 0.1);
     lights.push_back(light);
   }
 
