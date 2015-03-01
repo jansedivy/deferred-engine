@@ -23,7 +23,7 @@ void main() {
 
   float depth = linearizeDepth(texture(uDepth, uv).r);
 
-  vec3 result = texture(uSampler, uv).zyx;
+  vec3 result = texture(uSampler, uv).xyz;
 
   float fog = clamp(exp2(density * depth * depth * 1.442695), 0.0, 1.0);
 
