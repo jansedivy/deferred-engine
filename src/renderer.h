@@ -12,6 +12,7 @@
 #include "light.h"
 #include "profiler.h"
 #include "common.h"
+#include "frame_buffer.h"
 
 class Renderer {
   public:

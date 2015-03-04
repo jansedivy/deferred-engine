@@ -27,6 +27,7 @@
 #include "light.h"
 #include "profiler.h"
 #include "error.h"
+#include "frame_buffer.h"
 
 #include "file_io.h"
 
@@ -46,7 +47,7 @@ class Game {
     void renderFromCamera(Camera *camera);
     void renderDirectionalLights();
     void renderPointLight(Light *light);
-    void debugRender();
+    void debugRender(Camera *camera);
 
     bool running;
 

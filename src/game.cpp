@@ -199,15 +199,14 @@ void Game::update(float time) {
           light.type = kPoint;
           light.radius = lightRadius;
           light.position = camera.position;
-          if (keyboardState[SDL_SCANCODE_LSHIFT]) {
-            light.color = glm::vec3(238.0/255.0, 230.0/255.0, 103.0/255.0);
-          } else {
-            light.color = glm::vec3(
-                ((float)rand()/(float)RAND_MAX),
-                ((float)rand()/(float)RAND_MAX),
-                ((float)rand()/(float)RAND_MAX)
-                );
-          }
+          light.color = glm::vec3(((float)rand()/(float)RAND_MAX),
+              ((float)rand()/(float)RAND_MAX),
+              ((float)rand()/(float)RAND_MAX)
+              );
+          light.isCastingShadow = false;
+          light.camera.position = light.position;
+          light.camera.updateMatrix();
+          light.frameBuffer.init(512, 512);
           lights.push_back(light);
         }
 
@@ -351,15 +350,49 @@ void Game::renderFromCamera(Camera *camera) {
 void Game::render() {
   profiler.start("Render");
 
-  renderFromCamera(&camera);
-  gl.drawLights(&lights, &profiler, primitives.getSphere(), &camera);
+  Camera *currentCamera = &camera;
 
-  debugRender();
+  gl.shaderManager.use("color");
+  gl.enableDepthWrite();
+  gl.enableDepthRead();
 
-  gl.drawSkybox(&skybox, &camera);
+  for (auto light = lights.begin(); light != lights.end(); light++) {
+    if (light->isCastingShadow) {
+      light->frameBuffer.bind();
+      gl.clear(true);
+      glViewport(0, 0, light->frameBuffer.width, light->frameBuffer.height);
+      gl.shaderManager.current->setUniform("uPMatrix", light->camera.viewMatrix);
+
+      for (auto it = entities.begin(); it != entities.end(); it++) {
+        glm::mat4 modelView;
+
+        modelView = glm::translate(modelView, it->position);
+        modelView = glm::rotate(modelView, it->rotation.x, glm::vec3(1.0, 0.0, 0.0));
+        modelView = glm::rotate(modelView, it->rotation.y, glm::vec3(0.0, 1.0, 0.0));
+        modelView = glm::rotate(modelView, it->rotation.z, glm::vec3(0.0, 0.0, 1.0));
+        modelView = glm::scale(modelView, it->scale);
+
+        gl.shaderManager.current->setUniform("uMVMatrix", modelView);
+
+        gl.bindMesh(it->mesh);
+        gl.draw();
+      }
+
+      light->frameBuffer.unbind();
+    }
+  }
+
+  gl.shaderManager.current->disable();
+
+  renderFromCamera(currentCamera);
+  gl.drawLights(&lights, &profiler, primitives.getSphere(), currentCamera);
+
+  debugRender(currentCamera);
+
+  gl.drawSkybox(&skybox, currentCamera);
 
   gl.disableDepthRead();
-  gl.finalRender(&profiler, &camera);
+  gl.finalRender(&profiler, currentCamera);
 
   if (keyboardState[SDL_SCANCODE_O]) {
     gl.debugRendererGBuffer(&gl.gbuffer);
@@ -368,17 +401,17 @@ void Game::render() {
   profiler.end();
 }
 
-void Game::debugRender() {
+void Game::debugRender(Camera *camera) {
   gl.enableDepthRead();
 
   if (keyboardState[SDL_SCANCODE_I]) {
     gl.shaderManager.use("color");
 
-    gl.shaderManager.current->setUniform("uPMatrix", camera.viewMatrix);
+    gl.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
 
     for (auto it = lights.begin(); it != lights.end(); it++) {
       if (it->type == kPoint) {
-        if (!camera.frustum.sphereInFrustum(it->position, it->radius)) {
+        if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {
           continue;
         }
 
@@ -397,7 +430,7 @@ void Game::debugRender() {
   }
 
   gl.shaderManager.use("debug");
-    gl.shaderManager.current->setUniform("uPMatrix", camera.viewMatrix);
+    gl.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
     debugDraw.draw();
   gl.shaderManager.current->disable();
 }

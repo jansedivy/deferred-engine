@@ -205,10 +205,6 @@ void Renderer::debugRendererGBuffer(GBuffer *framebuffer) {
     shaderManager.current->texture("uSampler", framebuffer->normalTexture, 0);
     drawScreenAlignedQuad();
 
-    glViewport(width/2, height/2, width/2, height/2);
-    shaderManager.current->texture("uSampler", framebuffer->specularTexture, 0);
-    drawScreenAlignedQuad();
-
   shaderManager.current->disable();
 }
 
@@ -275,6 +271,14 @@ void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler,
       shaderManager.current->setUniform("lightPosition", it->position);
       shaderManager.current->setUniform("lightRadius", it->radius);
       shaderManager.current->setUniform("lightColor", it->color);
+
+      if (it->isCastingShadow) {
+        shaderManager.current->setUniform("isCastingShadow", 1);
+        shaderManager.current->texture("shadowMap", it->frameBuffer.depthTexture, 4);
+        shaderManager.current->setUniform("lightMatrix", it->camera.viewMatrix);
+      } else {
+        shaderManager.current->setUniform("isCastingShadow", 0);
+      }
 
       draw();
     }
