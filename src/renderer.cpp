@@ -16,6 +16,7 @@ void Renderer::init(int w, int h) {
   ssao = true;
   ssaoRadius = 5.0f;
   fog = true;
+  bloom = true;
 
   glewExperimental = GL_TRUE;
   glewInit();
@@ -423,6 +424,25 @@ void Renderer::finalRender(Profiler *profiler, Camera *camera) {
       shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
       shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
 
+      drawScreenAlignedQuad();
+    shaderManager.current->disable();
+
+    glDisable(GL_STENCIL_TEST);
+
+    profiler->end();
+  }
+
+  if (bloom) {
+    profiler->start("Bloom");
+
+    glEnable(GL_STENCIL_TEST);
+
+    glStencilFunc(GL_EQUAL, 1, 1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    shaderManager.use("bloom");
+      bindScreenAlignedQuad();
+      shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 0);
       drawScreenAlignedQuad();
     shaderManager.current->disable();
 
