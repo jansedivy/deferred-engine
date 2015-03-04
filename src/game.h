@@ -27,6 +27,7 @@
 #include "light.h"
 #include "profiler.h"
 #include "error.h"
+#include "scene.h"
 #include "frame_buffer.h"
 
 #include "file_io.h"
@@ -61,9 +62,6 @@ class Game {
     Loader loader;
     const Uint8 *keyboardState;
 
-    std::vector<Light> lights;
-    std::vector<Entity> entities;
-
     float totalTime = 0.0f;
 
     Texture *skyboxTexture;
@@ -75,6 +73,8 @@ class Game {
 
     int width;
     int height;
+
+    Scene scene;
 
   private:
     unsigned int numbers = 0;

@@ -4,8 +4,17 @@ Texture* Loader::get(const char *path) {
   if (textures.count(path)) {
     return textures[path];
   } else {
-    printf("undefined %s\n", path);
+    printf("undefined texture %s\n", path);
     /* showError("Error getting texture", "Undefined texture %s", path); */
+    return NULL;
+  }
+}
+
+std::vector<LoadedMesh>* Loader::getModel(const char *path) {
+  if (models.count(path)) {
+    return models[path];
+  } else {
+    printf("undefined model %s\n", path);
     return NULL;
   }
 }
@@ -131,7 +140,7 @@ unsigned char* Loader::loadImageData(const char *path, int *width, int *height) 
   return SOIL_load_image(path, width, height, &channels, SOIL_LOAD_RGB);
 }
 
-void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Renderer *gl) {
+void Loader::loadMesh(const char *path, Renderer *gl) {
   printf("Loadint mesh %s\n", path);
 
   Assimp::Importer importer;
@@ -140,6 +149,10 @@ void Loader::loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Rendere
   if (!scene) {
     printf("Error: %s\n", importer.GetErrorString());
   }
+
+  std::vector<LoadedMesh> *meshes = new std::vector<LoadedMesh>();
+
+  models[path] = meshes;
 
   for (unsigned int m=0; m<scene->mNumMaterials; ++m) {
     {

@@ -44,14 +44,19 @@ class Loader {
 
     void addTexture(std::string path);
     void addCubemap(const char *name, std::vector<const char*> *faces);
+    void loadMesh(const char *path, Renderer *gl);
+
     Texture* get(const char *path);
+    std::vector<LoadedMesh>* getModel(const char *path);
 
     void startLoading();
 
-    void loadMesh(const char *path, std::vector<LoadedMesh> *meshes, Renderer *gl);
   private:
     unsigned char* loadImageData(const char *path, int *width, int *height);
+
     std::map<std::string, Texture*> textures;
+    std::map<std::string, std::vector<LoadedMesh>*> models;
+
     void loadImagesInQueue();
 
     std::vector<TextureLoading> texturesToLoad;

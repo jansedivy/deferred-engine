@@ -59,16 +59,6 @@ void Game::init() {
   loader.addTexture(std::string("spec.dds"));
   loader.addTexture(std::string("alpha.dds"));
 
-  profiler.start("loading meshes");
-
-  std::vector<LoadedMesh> meshes;
-  loader.loadMesh("mesh.obj", &meshes, &gl);
-
-  std::vector<LoadedMesh> sponza;
-  loader.loadMesh("sponza.obj", &sponza, &gl);
-
-  profiler.end();
-
   std::vector<const char*> faces;
   faces.push_back("right.dds");
   faces.push_back("left.dds");
@@ -78,60 +68,23 @@ void Game::init() {
   faces.push_back("front.dds");
 
   loader.addCubemap("galaxySkybox", &faces);
+  loader.loadMesh("sponza.obj", &gl);
 
   loader.startLoading();
   profiler.end();
 
   primitives.setRenderer(&gl);
-
   debugDraw.init();
 
   skybox.texture = loader.get("galaxySkybox");
   skybox.mesh = primitives.getCube();
 
   profiler.start("adding objects to scene");
-  for (auto it = sponza.begin(); it != sponza.end(); it++) {
-    Entity entity;
-    if (!it->textureName.empty()) {
-      entity.texture = loader.get(it->textureName.c_str());
-    } else {
-      entity.texture = loader.get("default.dds");
-    }
 
-    entity.normalMap = NULL;
-    entity.specularTexture = NULL;
+  profiler.end();
 
-    if (!it->normalName.empty()) {
-      entity.normalMap = loader.get(it->normalName.c_str());
-    }
-
-    if (!it->specularName.empty()) {
-      entity.specularTexture = loader.get(it->specularName.c_str());
-    } else {
-      entity.specularTexture = loader.get("spec.dds");
-    }
-
-    if (!it->alphaName.empty()) {
-      entity.alphaTexture = loader.get(it->alphaName.c_str());
-    } else {
-      entity.alphaTexture = loader.get("alpha.dds");
-    }
-
-    entity.type = kOther;
-    entity.scale = glm::vec3(1.0, 1.0, 1.0);
-    entity.mesh = it->mesh;
-    entity.rotation = glm::vec3(0.0, 0.0, 0.0);
-    entity.position = glm::vec3(-2000.0, 0.0, -1000.0);
-    entities.push_back(entity);
-  }
-
-  {
-    Light light;
-    light.type = kAmbient;
-    light.color = glm::vec3(0.1, 0.1, 0.1);
-    lights.push_back(light);
-  }
-
+  profiler.start("Scene init");
+  scene.init(&loader, &gl);
   profiler.end();
 
   running = true;
@@ -209,7 +162,7 @@ void Game::update(float time) {
           light.camera.position = light.position;
           light.camera.updateMatrix();
           light.frameBuffer.init(512, 512);
-          lights.push_back(light);
+          scene.lights.push_back(light);
         }
 
         break;
@@ -308,7 +261,7 @@ void Game::renderFromCamera(Camera *camera) {
 
   int count = 0;
 
-  for (auto it = entities.begin(); it != entities.end(); ++it) {
+  for (auto it = scene.entities.begin(); it != scene.entities.end(); ++it) {
     float radius = it->getBoundingRadius();
     if (!camera->frustum.sphereInFrustum(it->position, radius)) {
       continue;
@@ -360,14 +313,14 @@ void Game::render() {
   gl.enableDepthWrite();
   gl.enableDepthRead();
 
-  for (auto light = lights.begin(); light != lights.end(); light++) {
+  for (auto light = scene.lights.begin(); light != scene.lights.end(); light++) {
     if (light->isCastingShadow) {
       light->frameBuffer.bind();
       gl.clear(true);
       glViewport(0, 0, light->frameBuffer.width, light->frameBuffer.height);
       gl.shaderManager.current->setUniform("uPMatrix", light->camera.viewMatrix);
 
-      for (auto it = entities.begin(); it != entities.end(); it++) {
+      for (auto it = scene.entities.begin(); it != scene.entities.end(); it++) {
         glm::mat4 modelView;
 
         modelView = glm::translate(modelView, it->position);
@@ -389,7 +342,7 @@ void Game::render() {
   gl.shaderManager.current->disable();
 
   renderFromCamera(currentCamera);
-  gl.drawLights(&lights, &profiler, primitives.getSphere(), currentCamera);
+  gl.drawLights(&scene.lights, &profiler, primitives.getSphere(), currentCamera);
 
   debugRender(currentCamera);
 
@@ -413,7 +366,7 @@ void Game::debugRender(Camera *camera) {
 
     gl.shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
 
-    for (auto it = lights.begin(); it != lights.end(); it++) {
+    for (auto it = scene.lights.begin(); it != scene.lights.end(); it++) {
       if (it->type == kPoint) {
         if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {
           continue;
