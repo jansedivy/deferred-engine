@@ -136,6 +136,7 @@ void Game::init() {
 
   running = true;
   oldTime = SDL_GetTicks();
+
   profiler.end();
 }
 
@@ -267,11 +268,12 @@ void Game::update(float time) {
     camera.position -= camera.right * cameraSpeed;
   }
 
-  if (keyboardState[SDL_SCANCODE_D] || keyboardState[SDL_SCANCODE_E]) {
+  if (keyboardState[SDL_SCANCODE_D]) {
     camera.position += camera.right * cameraSpeed;
   }
 
   camera.updateMatrix();
+
   profiler.end();
 }
 
