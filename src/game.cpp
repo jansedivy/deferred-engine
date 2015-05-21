@@ -160,6 +160,8 @@ void Game::update(float time) {
               );
           light.isCastingShadow = false;
           light.camera.position = light.position;
+          light.camera.rotation = camera.rotation;
+          light.camera.far = lightRadius;
           light.camera.updateMatrix();
           light.frameBuffer.init(512, 512);
           scene.lights.push_back(light);

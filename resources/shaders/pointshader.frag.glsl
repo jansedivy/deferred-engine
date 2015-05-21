@@ -69,7 +69,7 @@ void main() {
     float depthDistance = textureProj(shadowMap, depthScaleMatrix * UVinShadowMap).x;
     vec4 projectedEyeDir = (UVinShadowMap / UVinShadowMap.w) * 0.5 + 0.5;
 
-    if (depthDistance < projectedEyeDir.z - 0.000005) {
+    if (depthDistance < projectedEyeDir.z) {
       shadow = 0.0;
     }
   }
