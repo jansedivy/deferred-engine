@@ -221,9 +221,10 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
         mesh->vertices.push_back(meshData->mVertices[l].y);
         mesh->vertices.push_back(meshData->mVertices[l].z);
 
-        radius = fmax(radius, abs(meshData->mVertices[l].x));
-        radius = fmax(radius, abs(meshData->mVertices[l].y));
-        radius = fmax(radius, abs(meshData->mVertices[l].z));
+        float distance = glm::length(glm::vec3(meshData->mVertices[l].x, meshData->mVertices[l].y, meshData->mVertices[l].z));
+        if (distance > radius) {
+          radius = distance;
+        }
 
         mesh->normals.push_back(meshData->mNormals[l].x);
         mesh->normals.push_back(meshData->mNormals[l].y);
