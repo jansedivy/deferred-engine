@@ -75,9 +75,6 @@ class Game {
     Scene scene;
 
   private:
-    unsigned int numbers = 0;
-    double average = 0.0f;
-
     int oldTime = 0;
     int current_time = 0;
 
