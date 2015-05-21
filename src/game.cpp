@@ -344,9 +344,9 @@ void Game::render() {
   renderFromCamera(currentCamera);
   gl.drawLights(&scene.lights, &profiler, primitives.getSphere(), currentCamera);
 
-  debugRender(currentCamera);
-
   gl.drawSkybox(&skybox, currentCamera);
+
+  debugRender(currentCamera);
 
   gl.disableDepthRead();
   gl.finalRender(&profiler, currentCamera);
