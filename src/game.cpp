@@ -104,9 +104,9 @@ void Game::exit() {
 }
 
 void Game::tick() {
-  int current_time = SDL_GetTicks();
-  float diff = (current_time - oldTime) / 1000.0f;
-  oldTime = current_time;
+  int currentTime = SDL_GetTicks();
+  float diff = (currentTime - oldTime) / 1000.0f;
+  oldTime = currentTime;
 
   frameCounter += 1;
   frameTime += diff;

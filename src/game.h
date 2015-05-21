@@ -76,7 +76,6 @@ class Game {
 
   private:
     int oldTime = 0;
-    int current_time = 0;
 
     int frameCounter = 0;
     float frameTime = 0.0f;
