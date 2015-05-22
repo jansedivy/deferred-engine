@@ -312,6 +312,7 @@ void Game::render() {
   Camera *currentCamera = &camera;
 
   gl.shaderManager.use("color");
+  gl.shaderManager.current->setUniform("color", glm::vec3(1.0, 1.0, 1.0));
   gl.enableDepthWrite();
   gl.enableDepthRead();
 
@@ -379,6 +380,7 @@ void Game::debugRender(Camera *camera) {
         glm::mat4 modelView;
         modelView = glm::translate(modelView, it->position);
         modelView = glm::scale(modelView, glm::vec3(it->radius));
+        gl.shaderManager.current->setUniform("color", it->color);
         gl.shaderManager.current->setUniform("uMVMatrix", modelView);
 
         gl.draw(true);
