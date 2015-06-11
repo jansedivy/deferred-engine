@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <glm/vec3.hpp>
 
 #include <vector>
 #include "aabb.h"
@@ -19,8 +20,8 @@ struct Mesh {
   std::vector<float> uv;
   std::vector<float> tangents;
   std::vector<GLuint> indices;
-  float boundingRadius;
+  float bounding_radius;
 
   MeshBuffers buffers;
+  glm::vec3 relative_center;
 };
-

@@ -13,6 +13,8 @@
 
 #include <vector>
 
+#include "profiler.h"
+
 #include "shader.h"
 #include "renderer.h"
 #include "camera.h"
@@ -25,10 +27,10 @@
 #include "mesh.h"
 #include "debug_draw.h"
 #include "light.h"
-#include "profiler.h"
 #include "error.h"
 #include "scene.h"
 #include "frame_buffer.h"
+#include "sphere.h"
 
 #include "file_io.h"
 
@@ -45,12 +47,12 @@ class Game {
     void update(float time);
 
     void render();
-    void renderFromCamera(Camera *camera);
-    void debugRender(Camera *camera);
+    void render_from_camera(Camera *camera);
+    void debug_render(Camera *camera);
 
     bool running;
 
-    float lightRadius;
+    float light_radius;
 
     SDL_Window *window;
     Primitives primitives;
@@ -58,7 +60,7 @@ class Game {
     Camera camera;
 
     Loader loader;
-    const Uint8 *keyboardState;
+    const Uint8 *keyboard_state;
 
     float totalTime = 0.0f;
 
@@ -66,8 +68,7 @@ class Game {
     bool renderWireframe;
 
     Skybox skybox;
-    DebugDraw debugDraw;
-    Profiler profiler;
+    DebugDraw debug_draw;
 
     int width;
     int height;

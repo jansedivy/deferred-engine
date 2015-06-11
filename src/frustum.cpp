@@ -37,7 +37,7 @@ void Frustum::setMatrix(glm::mat4 matrix) {
   }
 }
 
-bool Frustum::sphereInFrustum(glm::vec3 position, float radius) {
+bool Frustum::sphere_in_frustum(glm::vec3 position, float radius) {
   for (int i=0; i<6; i++) {
     float distance = planes[i].distanceTo(position);
     if (distance + radius < 0) {

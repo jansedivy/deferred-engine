@@ -7,11 +7,11 @@ class Primitives {
   public:
     Primitives();
 
-    void setRenderer(Renderer *gl);
+    void set_renderer(Renderer *gl);
 
     Mesh* getCube();
     Mesh *getQuad();
-    Mesh *getSphere();
+    Mesh *get_sphere();
   private:
     Mesh *cube;
     Mesh *quad;

@@ -1,6 +1,6 @@
 #include "aabb.h"
 
-void AABB::calculateForMesh(std::vector<float> vertices) {
+void AABB::calculate_for_mesh(std::vector<float> vertices) {
   bool first = true;
   for (auto it = vertices.begin(); it != vertices.end(); it += 3) {
     float x = *it;

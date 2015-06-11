@@ -14,6 +14,7 @@ uniform vec3 lightDirection;
 uniform vec3 lightPosition;
 uniform mat4 invProjection;
 uniform float lightRadius;
+uniform float uAttenuation;
 uniform int isCastingShadow;
 
 uniform vec3 camera;
@@ -42,7 +43,7 @@ void main() {
   vec3 light_dir = lightPosition - view_pos.xyz;
   float dist = length(light_dir);
   float size = lightRadius;
-  float attenuation = 1.0 - pow( clamp(dist/size, 0.0, 1.0), 2.0);
+  float attenuation = 1.0 - pow( clamp(dist/size, 0.0, 1.0), uAttenuation);
   light_dir = normalize(light_dir);
 
   float n_dot_l = clamp(dot(light_dir, normalColor), 0.0, 1.0);
@@ -69,7 +70,7 @@ void main() {
     float depthDistance = textureProj(shadowMap, depthScaleMatrix * UVinShadowMap).x;
     vec4 projectedEyeDir = (UVinShadowMap / UVinShadowMap.w) * 0.5 + 0.5;
 
-    if (depthDistance < projectedEyeDir.z) {
+    if (depthDistance < projectedEyeDir.z - 0.00001) {
       shadow = 0.0;
     }
   }

@@ -19,10 +19,10 @@ class GBuffer {
     GLuint normalTexture;
     GLuint depthTexture;
     GLuint specularTexture;
-    GLuint finalTexture;
+    GLuint final_kexture;
 
     void init(int width, int height);
-    void bindForWriting();
+    void bind_for_writing();
     void bindForReading();
     void disable();
 

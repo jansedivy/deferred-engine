@@ -9,5 +9,5 @@ class Frustum {
   public:
     void setMatrix(glm::mat4 matrix);
     Plane planes[6];
-    bool sphereInFrustum(glm::vec3 position, float radius);
+    bool sphere_in_frustum(glm::vec3 position, float radius);
 };

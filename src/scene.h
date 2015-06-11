@@ -11,6 +11,6 @@ class Scene {
   public:
     void init(Loader *loader, Renderer *gl);
 
-    std::vector<Light> lights;
-    std::vector<Entity> entities;
+    std::vector<Light*> lights;
+    std::vector<Entity*> entities;
 };

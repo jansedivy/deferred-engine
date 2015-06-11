@@ -4,7 +4,7 @@
 
 class FrameBuffer {
   public:
-    void init(int width, int height);
+    void init(int width, int height, bool clamp_to_border);
 
     void bind();
     void unbind();

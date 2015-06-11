@@ -20,55 +20,55 @@ class Renderer {
     void init(int w, int h);
 
     void draw(bool wireframe=false);
-    void debugRendererGBuffer(GBuffer *framebuffer);
-    void renderFullscreenTexture(GLuint texture);
+    void debug_renderer_gbuffer(GBuffer *framebuffer);
+    void render_fullscreen_texture(GLuint texture);
 
-    void drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
+    void draw_lights(std::vector<Light*> *lights, Mesh *sphere, Camera *camera);
 
-    void renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Camera *camera);
-    void renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera);
-    void renderAmbientLight(std::vector<Light> *lights, Profiler *profiler, Camera *camera);
+    void render_directional_lights(std::vector<Light*> *lights, Camera *camera);
+    void render_point_lights(std::vector<Light*> *lights, Mesh *sphere, Camera *camera);
+    void render_ambient_light(std::vector<Light*> *lights, Camera *camera);
 
-    void finalRender(Profiler *profiler, Camera *camera);
+    void final_render(Camera *camera);
 
-    void bindMesh(Mesh *mesh);
-    void populateBuffers(Mesh *mesh);
+    void bind_mesh(Mesh *mesh);
+    void populate_buffers(Mesh *mesh);
 
-    void clear(bool clearDepth=false);
-    void enableDepthRead();
-    void disableDepthRead();
+    void clear(bool clear_depth=false);
+    void enable_depth_read();
+    void disable_depth_read();
 
-    void enableDepthWrite();
-    void disableDepthWrite();
+    void enable_depth_write();
+    void disable_depth_write();
 
-    void bindScreenAlignedQuad();
-    void drawScreenAlignedQuad();
+    void bind_screen_aligned_quad();
+    void draw_screen_aligned_quad();
 
-    void drawSkybox(Skybox *skybox, Camera *camera);
-    ShaderManager shaderManager;
+    void draw_skybox(Skybox *skybox, Camera *camera);
+    ShaderManager shader_manager;
 
     GBuffer gbuffer;
 
-    int kernelSize;
+    int kernel_size;
     glm::vec3 *kernel;
 
-    int noiseSize;
+    int noise_size;
     glm::vec3 noise[16];
 
-    GLuint noiseId;
+    GLuint noise_id;
 
     int width;
     int height;
 
-    bool antiAlias;
+    bool anti_alias;
     bool ssao;
-    float ssaoRadius;
+    float ssao_radius;
 
     bool fog;
     bool bloom;
 
-    GLuint screenAlignedQuad;
+    GLuint screen_aligned_quad;
 
   private:
-    Mesh *currentMesh;
+    Mesh *current_mesh;
 };

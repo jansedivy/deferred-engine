@@ -12,21 +12,21 @@ class Camera {
     Camera();
     glm::vec3 position;
     glm::vec3 rotation;
-    glm::mat4 viewMatrix;
+    glm::mat4 view_matrix;
     glm::vec3 right;
     glm::vec3 forward;
 
     Frustum frustum;
 
     float fov;
-    float aspectRatio;
+    float aspect_ratio;
     float near;
     float far;
 
-    glm::vec3 fogColor;
-    float fogDensity;
+    glm::vec3 fog_color;
+    float fog_density;
 
-    void updateMatrix();
-    void calculateRightMovement();
-    void setAspect(float aspect);
+    void update_matrix();
+    void calculate_right_movement();
+    void set_aspect(float aspect);
 };

@@ -2,9 +2,7 @@
 
 #include <SDL.h>
 
-Profiler::Profiler() {
-  depth = 0;
-};
+Profiler *global_profiler = 0;
 
 void Profiler::start(const char *name) {
   if (events.size() < 1024) {

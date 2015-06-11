@@ -19,7 +19,7 @@ std::vector<LoadedMesh>* Loader::getModel(const char *path) {
   }
 }
 
-void Loader::addTexture(std::string path) {
+void Loader::add_texture(std::string path) {
   TextureLoading loading;
   loading.path = path;
   loading.name = path;
@@ -28,7 +28,7 @@ void Loader::addTexture(std::string path) {
   texturesToLoad.push_back(loading);
 }
 
-void Loader::addCubemap(const char *name, std::vector<const char*> *faces) {
+void Loader::add_cubemap(const char *name, std::vector<const char*> *faces) {
   textures[name] = loadCubeMap(faces);
   /* TextureLoading loading; */
   /* loading.paths = faces; */
@@ -38,7 +38,7 @@ void Loader::addCubemap(const char *name, std::vector<const char*> *faces) {
   /* texturesToLoad.push_back(loading); */
 }
 
-void Loader::startLoading() {
+void Loader::start_loading() {
   // TODO(sedivy): load in parallel
   loadImagesInQueue();
 }
@@ -57,6 +57,10 @@ void Loader::loadImagesInQueue() {
 }
 
 Texture* Loader::loadTexture(TextureLoading textureLoading) {
+  if (textures[textureLoading.name] != NULL) {
+    return textures[textureLoading.name];
+  }
+
   GLuint texture;
 
   int width;
@@ -140,8 +144,8 @@ unsigned char* Loader::loadImageData(const char *path, int *width, int *height) 
   return SOIL_load_image(path, width, height, &channels, SOIL_LOAD_RGB);
 }
 
-void Loader::loadMesh(const char *path, Renderer *gl) {
-  printf("Loadint mesh %s\n", path);
+void Loader::load_mesh(const char *path, Renderer *gl) {
+  printf("Loading mesh %s\n", path);
 
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
@@ -162,7 +166,7 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
       aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_HEIGHT, texIndex, &path);
       while (texFound == AI_SUCCESS) {
         std::string fullPath = std::string(path.data);
-        addTexture(fullPath);
+        add_texture(fullPath);
         texIndex++;
         texFound = scene->mMaterials[m]->GetTexture(aiTextureType_HEIGHT, texIndex, &path);
       }
@@ -175,7 +179,7 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
       aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_SPECULAR, texIndex, &path);
       while (texFound == AI_SUCCESS) {
         std::string fullPath = std::string(path.data);
-        addTexture(fullPath);
+        add_texture(fullPath);
         texIndex++;
         texFound = scene->mMaterials[m]->GetTexture(aiTextureType_SPECULAR, texIndex, &path);
       }
@@ -188,7 +192,7 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
       aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
       while (texFound == AI_SUCCESS) {
         std::string fullPath = std::string(path.data);
-        addTexture(fullPath);
+        add_texture(fullPath);
         texIndex++;
         texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
       }
@@ -201,7 +205,7 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
       aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_OPACITY, texIndex, &path);
       while (texFound == AI_SUCCESS) {
         std::string fullPath = std::string(path.data);
-        addTexture(fullPath);
+        add_texture(fullPath);
         texIndex++;
         texFound = scene->mMaterials[m]->GetTexture(aiTextureType_OPACITY, texIndex, &path);
       }
@@ -213,18 +217,20 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
     for (int i=0; i<scene->mNumMeshes; i++) {
       aiMesh *meshData = scene->mMeshes[i];
 
-      float radius = 0.0f;
       Mesh *mesh = new Mesh();
 
+      glm::vec3 center(0.0, 0.0, 0.0);
+
+      int count = 0;
       for (int l=0; l<meshData->mNumVertices; l++) {
+        count += 1;
         mesh->vertices.push_back(meshData->mVertices[l].x);
         mesh->vertices.push_back(meshData->mVertices[l].y);
         mesh->vertices.push_back(meshData->mVertices[l].z);
 
-        float distance = glm::length(glm::vec3(meshData->mVertices[l].x, meshData->mVertices[l].y, meshData->mVertices[l].z));
-        if (distance > radius) {
-          radius = distance;
-        }
+        center.x += meshData->mVertices[l].x;
+        center.y += meshData->mVertices[l].y;
+        center.z += meshData->mVertices[l].z;
 
         mesh->normals.push_back(meshData->mNormals[l].x);
         mesh->normals.push_back(meshData->mNormals[l].y);
@@ -240,6 +246,17 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
         }
       }
 
+      center = center / float(count);
+      mesh->relative_center = center;
+
+      float radius = 0.0f;
+      for (int l=0; l<meshData->mNumVertices; l++) {
+        float distance = glm::distance(mesh->relative_center, glm::vec3(meshData->mVertices[l].x, meshData->mVertices[l].y, meshData->mVertices[l].z));
+        if (distance > radius) {
+          radius = distance;
+        }
+      }
+
       for (int l=0; l<meshData->mNumFaces; l++) {
         aiFace face = meshData->mFaces[l];
 
@@ -248,10 +265,10 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
         }
       }
 
-      std::string textureName;
-      std::string normalName;
-      std::string specularName;
-      std::string alphaName;
+      std::string texture_name;
+      std::string normal_name;
+      std::string specular_name;
+      std::string alpha_name;
 
       if (scene->HasMaterials()) {
         const aiMaterial* material = scene->mMaterials[meshData->mMaterialIndex];
@@ -259,32 +276,32 @@ void Loader::loadMesh(const char *path, Renderer *gl) {
         aiString texturePath;
 
         if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
-          textureName = std::string(texturePath.data);
+          texture_name = std::string(texturePath.data);
         }
 
         if (material->GetTextureCount(aiTextureType_HEIGHT) > 0 && material->GetTexture(aiTextureType_HEIGHT, 0, &texturePath) == AI_SUCCESS) {
-          normalName = std::string(texturePath.data);
+          normal_name = std::string(texturePath.data);
         }
 
         if (material->GetTextureCount(aiTextureType_SPECULAR) > 0 && material->GetTexture(aiTextureType_SPECULAR, 0, &texturePath) == AI_SUCCESS) {
-          specularName = std::string(texturePath.data);
+          specular_name = std::string(texturePath.data);
         }
 
         if (material->GetTextureCount(aiTextureType_OPACITY) > 0 && material->GetTexture(aiTextureType_OPACITY, 0, &texturePath) == AI_SUCCESS) {
-          alphaName = std::string(texturePath.data);
+          alpha_name = std::string(texturePath.data);
         }
       }
 
-      gl->populateBuffers(mesh);
+      gl->populate_buffers(mesh);
 
-      mesh->boundingRadius = radius;
+      mesh->bounding_radius = radius;
 
       LoadedMesh loaded;
       loaded.mesh = mesh;
-      loaded.textureName = textureName;
-      loaded.normalName = normalName;
-      loaded.specularName = specularName;
-      loaded.alphaName = alphaName;
+      loaded.texture_name = texture_name;
+      loaded.normal_name = normal_name;
+      loaded.specular_name = specular_name;
+      loaded.alpha_name = alpha_name;
 
       meshes->push_back(loaded);
     }

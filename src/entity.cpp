@@ -1,11 +1,14 @@
 #include "entity.h"
 
-float Entity::getBoundingRadius() {
-  float x = mesh->boundingRadius * scale.x;
-  float y = mesh->boundingRadius * scale.y;
-  float z = mesh->boundingRadius * scale.z;
+Sphere Entity::get_bounding_sphere() {
+  Sphere result;
 
-  float result = std::max(std::max(x, y), z);
+  float x = mesh->bounding_radius * scale.x;
+  float y = mesh->bounding_radius * scale.y;
+  float z = mesh->bounding_radius * scale.z;
+
+  result.radius = std::max(std::max(x, y), z);
+  result.position = position + mesh->relative_center;
 
   return result;
 }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(projectName)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3")
 
 set(MY_APP_NAME game)
 set(MY_APP_VERSION 0.0.1)

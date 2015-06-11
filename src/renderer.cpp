@@ -12,16 +12,16 @@ void Renderer::init(int w, int h) {
   width = w;
   height = h;
 
-  antiAlias = true;
+  anti_alias = true;
   ssao = true;
-  ssaoRadius = 5.0f;
+  ssao_radius = 5.0f;
   fog = true;
   bloom = true;
 
   glewExperimental = GL_TRUE;
   glewInit();
 
-  enableDepthRead();
+  enable_depth_read();
   glEnable(GL_DEPTH_CLAMP);
   glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
@@ -31,10 +31,10 @@ void Renderer::init(int w, int h) {
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
 
-  kernelSize = 32;
+  kernel_size = 32;
 
-  kernel = new glm::vec3[kernelSize];
-  for (int i=0; i<kernelSize; i++) {
+  kernel = new glm::vec3[kernel_size];
+  for (int i=0; i<kernel_size; i++) {
     glm::vec3 value = glm::vec3(
         getRandomFloat(-1.0f, 1.0f),
         getRandomFloat(-1.0f, 1.0f),
@@ -42,14 +42,14 @@ void Renderer::init(int w, int h) {
 
     value = glm::normalize(value);
 
-    float scale = float(i) / float(kernelSize);
+    float scale = float(i) / float(kernel_size);
     value = value * lerp(0.1f, 1.0f, scale * scale);
 
     kernel[i] = value;
   }
 
-  noiseSize = 4;
-  for (int i=0; i<(noiseSize*noiseSize); i++) {
+  noise_size = 4;
+  for (int i=0; i<(noise_size*noise_size); i++) {
     noise[i] = glm::vec3(
         getRandomFloat(-1.0f, 1.0f),
         getRandomFloat(-1.0f, 1.0f),
@@ -57,9 +57,9 @@ void Renderer::init(int w, int h) {
     noise[i] = glm::normalize(noise[i]);
   }
 
-  glGenTextures(1, &noiseId);
-  glBindTexture(GL_TEXTURE_2D, noiseId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, noiseSize, noiseSize, 0, GL_RGB, GL_FLOAT, noise);
+  glGenTextures(1, &noise_id);
+  glBindTexture(GL_TEXTURE_2D, noise_id);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, noise_size, noise_size, 0, GL_RGB, GL_FLOAT, noise);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -76,15 +76,15 @@ void Renderer::init(int w, int h) {
     -1.0f, 1.0f
   };
 
-  glGenBuffers(1, &screenAlignedQuad);
-  glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
+  glGenBuffers(1, &screen_aligned_quad);
+  glBindBuffer(GL_ARRAY_BUFFER, screen_aligned_quad);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   gbuffer.init(width, height);
 }
 
-void Renderer::populateBuffers(Mesh *mesh) {
+void Renderer::populate_buffers(Mesh *mesh) {
   glGenBuffers(1, &mesh->buffers.indices);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->buffers.indices);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indices.size() * sizeof(GLuint), &mesh->indices[0], GL_STATIC_DRAW);
@@ -111,34 +111,34 @@ void Renderer::populateBuffers(Mesh *mesh) {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Renderer::bindMesh(Mesh *mesh) {
-  currentMesh = mesh;
+void Renderer::bind_mesh(Mesh *mesh) {
+  current_mesh = mesh;
 
-  if (shaderManager.current->attributes.count("normals")) {
+  if (shader_manager.current->attributes.count("normals")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.normals);
-    glVertexAttribPointer(shaderManager.current->attributes["normals"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shader_manager.current->attributes["normals"], 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
-  if (shaderManager.current->attributes.count("tangents")) {
+  if (shader_manager.current->attributes.count("tangents")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.tangents);
-    glVertexAttribPointer(shaderManager.current->attributes["tangents"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shader_manager.current->attributes["tangents"], 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
-  if (shaderManager.current->attributes.count("uv")) {
+  if (shader_manager.current->attributes.count("uv")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.uvs);
-    glVertexAttribPointer(shaderManager.current->attributes["uv"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shader_manager.current->attributes["uv"], 2, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
-  if (shaderManager.current->attributes.count("position")) {
+  if (shader_manager.current->attributes.count("position")) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers.vertices);
-    glVertexAttribPointer(shaderManager.current->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(shader_manager.current->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->buffers.indices);
 }
 
 void Renderer::draw(bool wireframe) {
-  int size = currentMesh->indices.size();
+  int size = current_mesh->indices.size();
   if (wireframe) {
     glDrawElements(GL_LINES, size, GL_UNSIGNED_INT, 0);
   } else {
@@ -146,71 +146,71 @@ void Renderer::draw(bool wireframe) {
   }
 }
 
-void Renderer::drawSkybox(Skybox *skybox, Camera *camera) {
+void Renderer::draw_skybox(Skybox *skybox, Camera *camera) {
   glEnable(GL_STENCIL_TEST);
 
   glStencilFunc(GL_NOTEQUAL, 1, 1);
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-  disableDepthRead();
-  disableDepthWrite();
+  disable_depth_read();
+  disable_depth_write();
 
-  shaderManager.use("skybox");
+  shader_manager.use("skybox");
 
-  glm::mat4 projection = glm::perspective(glm::radians(camera->fov), camera->aspectRatio, camera->near, camera->far);
+  glm::mat4 projection = glm::perspective(glm::radians(camera->fov), camera->aspect_ratio, camera->near, camera->far);
   glm::mat4 view;
 
   view = glm::rotate(view, camera->rotation.x, glm::vec3(1.0, 0.0, 0.0));
   view = glm::rotate(view, camera->rotation.y, glm::vec3(0.0, 1.0, 0.0));
   view = glm::rotate(view, camera->rotation.z, glm::vec3(0.0, 0.0, 1.0));
 
-  shaderManager.current->setUniform("view", view);
-  shaderManager.current->setUniform("projection", projection);
-  shaderManager.current->cubemap("uSampler", skybox->texture->id, 0);
+  shader_manager.current->set_uniform("view", view);
+  shader_manager.current->set_uniform("projection", projection);
+  shader_manager.current->cubemap("uSampler", skybox->texture->id, 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, skybox->mesh->buffers.vertices);
-  glVertexAttribPointer(shaderManager.current->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(shader_manager.current->attributes["position"], 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skybox->mesh->buffers.indices);
   glDrawElements(GL_TRIANGLES, skybox->mesh->indices.size(), GL_UNSIGNED_INT, 0);
 
-  shaderManager.current->disable();
+  shader_manager.current->disable();
 
-  enableDepthWrite();
-  enableDepthRead();
+  enable_depth_write();
+  enable_depth_read();
   glDisable(GL_STENCIL_TEST);
 }
 
-void Renderer::renderFullscreenTexture(GLuint texture) {
+void Renderer::render_fullscreen_texture(GLuint texture) {
   glDisable(GL_CULL_FACE);
-  shaderManager.use("fullscreen");
+  shader_manager.use("fullscreen");
     glViewport(0, 0, width, height);
-    shaderManager.current->texture("uSampler", texture, 0);
+    shader_manager.current->texture("uSampler", texture, 0);
 
-    bindScreenAlignedQuad();
-    drawScreenAlignedQuad();
-  shaderManager.current->disable();
+    bind_screen_aligned_quad();
+    draw_screen_aligned_quad();
+  shader_manager.current->disable();
 }
 
-void Renderer::debugRendererGBuffer(GBuffer *framebuffer) {
-  shaderManager.use("fullscreen");
-    bindScreenAlignedQuad();
+void Renderer::debug_renderer_gbuffer(GBuffer *framebuffer) {
+  shader_manager.use("fullscreen");
+    bind_screen_aligned_quad();
 
     framebuffer->bindForReading();
 
     glViewport(0, 0, width/2, height/2);
-    shaderManager.current->texture("uSampler", framebuffer->texture, 0);
-    drawScreenAlignedQuad();
+    shader_manager.current->texture("uSampler", framebuffer->texture, 0);
+    draw_screen_aligned_quad();
 
     glViewport(width/2, 0, width/2, height/2);
-    shaderManager.current->texture("uSampler", framebuffer->normalTexture, 0);
-    drawScreenAlignedQuad();
+    shader_manager.current->texture("uSampler", framebuffer->normalTexture, 0);
+    draw_screen_aligned_quad();
 
-  shaderManager.current->disable();
+  shader_manager.current->disable();
 }
 
-void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera) {
-  profiler->start("Lights");
+void Renderer::draw_lights(std::vector<Light*> *lights, Mesh *sphere, Camera *camera) {
+  PROFILE("Lights");
 
   gbuffer.bindForLight();
 
@@ -226,244 +226,251 @@ void Renderer::drawLights(std::vector<Light> *lights, Profiler *profiler, Mesh *
   clear();
 
   gbuffer.bindForLight();
-  renderPointLights(lights, profiler, sphere, camera);
-  renderDirectionalLights(lights, profiler, camera);
-  renderAmbientLight(lights, profiler, camera);
+  render_point_lights(lights, sphere, camera);
+  render_directional_lights(lights, camera);
+  render_ambient_light(lights, camera);
 
   glDisable(GL_BLEND);
 
-  profiler->end();
+  PROFILE_END();
 }
 
-void Renderer::renderPointLights(std::vector<Light> *lights, Profiler *profiler, Mesh *sphere, Camera *camera) {
-  profiler->start("Point Lights");
+void Renderer::render_point_lights(std::vector<Light*> *lights, Mesh *sphere, Camera *camera) {
+  PROFILE("Point Lights");
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
-  disableDepthRead();
+  disable_depth_read();
 
-  shaderManager.use("pointshader");
+  shader_manager.use("pointshader");
 
-  bindMesh(sphere);
+  bind_mesh(sphere);
 
-  glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
+  glm::mat4 invProjection = glm::inverse(camera->view_matrix);
 
-  shaderManager.current->setUniform("invProjection", invProjection);
-  shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
+  shader_manager.current->set_uniform("invProjection", invProjection);
+  shader_manager.current->set_uniform("uPMatrix", camera->view_matrix);
 
-  shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
-  shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
-  shaderManager.current->texture("specularTexture", gbuffer.specularTexture, 2);
-  shaderManager.current->texture("depthTexture", gbuffer.depthTexture, 3);
+  shader_manager.current->texture("diffuseTexture", gbuffer.texture, 0);
+  shader_manager.current->texture("normalTexture", gbuffer.normalTexture, 1);
+  shader_manager.current->texture("specularTexture", gbuffer.specularTexture, 2);
+  shader_manager.current->texture("depthTexture", gbuffer.depthTexture, 3);
 
-  shaderManager.current->setUniform("camera", camera->position);
+  shader_manager.current->set_uniform("camera", camera->position);
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
-    if (it->type == kPoint) {
-      if (!camera->frustum.sphereInFrustum(it->position, it->radius)) {
+    Light *light = *it;
+
+    if (light->type == kPoint) {
+      if (!camera->frustum.sphere_in_frustum(light->position, light->radius)) {
         continue;
       }
 
-      glm::mat4 modelView;
-      modelView = glm::translate(modelView, it->position);
-      modelView = glm::scale(modelView, glm::vec3(it->radius));
+      glm::mat4 model_view;
+      model_view = glm::translate(model_view, light->position);
+      model_view = glm::scale(model_view, glm::vec3(light->radius));
 
-      shaderManager.current->setUniform("uMVMatrix", modelView);
-      shaderManager.current->setUniform("lightPosition", it->position);
-      shaderManager.current->setUniform("lightRadius", it->radius);
-      shaderManager.current->setUniform("lightColor", it->color);
+      shader_manager.current->set_uniform("uMVMatrix", model_view);
+      shader_manager.current->set_uniform("lightPosition", light->position);
+      shader_manager.current->set_uniform("lightRadius", light->radius);
+      shader_manager.current->set_uniform("lightColor", light->color);
+      shader_manager.current->set_uniform("uAttenuation", light->attenuation);
 
-      if (it->isCastingShadow) {
-        shaderManager.current->setUniform("isCastingShadow", 1);
-        shaderManager.current->texture("shadowMap", it->frameBuffer.depthTexture, 4);
-        shaderManager.current->setUniform("lightMatrix", it->camera.viewMatrix);
+      if (light->isCastingShadow) {
+        shader_manager.current->set_uniform("isCastingShadow", 1);
+        shader_manager.current->texture("shadowMap", light->frame_buffer.depthTexture, 4);
+        shader_manager.current->set_uniform("lightMatrix", light->camera.view_matrix);
       } else {
-        shaderManager.current->setUniform("isCastingShadow", 0);
+        shader_manager.current->set_uniform("isCastingShadow", 0);
       }
 
       draw();
     }
   }
 
-  shaderManager.current->disable();
+  shader_manager.current->disable();
 
-  profiler->end();
+  PROFILE_END();
 }
 
-void Renderer::renderAmbientLight(std::vector<Light> *lights, Profiler *profiler, Camera *camera) {
-  profiler->start("Ambient Light");
+void Renderer::render_ambient_light(std::vector<Light*> *lights, Camera *camera) {
+  PROFILE("Ambient Light");
 
   glDisable(GL_CULL_FACE);
 
-  shaderManager.use("ambientlight");
+  shader_manager.use("ambientlight");
 
-  shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
+  shader_manager.current->texture("diffuseTexture", gbuffer.texture, 0);
 
-  bindScreenAlignedQuad();
+  bind_screen_aligned_quad();
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
-    if (it->type == kAmbient) {
-      shaderManager.current->setUniform("lightColor", it->color);
-      drawScreenAlignedQuad();
+    Light *light = *it;
+
+    if (light->type == kAmbient) {
+      shader_manager.current->set_uniform("lightColor", light->color);
+      draw_screen_aligned_quad();
     }
   }
 
-  shaderManager.current->disable();
+  shader_manager.current->disable();
 
-  profiler->end();
+  PROFILE_END();
 }
 
-void Renderer::renderDirectionalLights(std::vector<Light> *lights, Profiler *profiler, Camera *camera) {
-  profiler->start("Directional Lights");
+void Renderer::render_directional_lights(std::vector<Light*> *lights, Camera *camera) {
+  PROFILE("Directional Lights");
 
   glDisable(GL_CULL_FACE);
 
-  shaderManager.use("directionlight");
+  shader_manager.use("directionlight");
 
-  shaderManager.current->texture("diffuseTexture", gbuffer.texture, 0);
-  shaderManager.current->texture("normalTexture", gbuffer.normalTexture, 1);
+  shader_manager.current->texture("diffuseTexture", gbuffer.texture, 0);
+  shader_manager.current->texture("normalTexture", gbuffer.normalTexture, 1);
 
-  bindScreenAlignedQuad();
+  bind_screen_aligned_quad();
 
   for (auto it = lights->begin(); it != lights->end(); it++) {
-    if (it->type == kDirectional) {
-      shaderManager.current->setUniform("lightColor", it->color);
-      shaderManager.current->setUniform("lightDirection", it->direction);
-      drawScreenAlignedQuad();
+    Light *light = *it;
+
+    if (light->type == kDirectional) {
+      shader_manager.current->set_uniform("lightColor", light->color);
+      shader_manager.current->set_uniform("lightDirection", light->direction);
+      draw_screen_aligned_quad();
     }
   }
 
-  shaderManager.current->disable();
+  shader_manager.current->disable();
 
-  profiler->end();
+  PROFILE_END();
 }
 
-void Renderer::clear(bool clearDepth) {
-  if (clearDepth) {
+void Renderer::clear(bool clear_depth) {
+  if (clear_depth) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   } else {
     glClear(GL_COLOR_BUFFER_BIT);
   }
 }
 
-void Renderer::enableDepthRead() {
+void Renderer::enable_depth_read() {
   glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::disableDepthRead() {
+void Renderer::disable_depth_read() {
   glDisable(GL_DEPTH_TEST);
 }
 
-void Renderer::enableDepthWrite() {
+void Renderer::enable_depth_write() {
   glDepthMask(GL_TRUE);
 }
 
-void Renderer::disableDepthWrite() {
+void Renderer::disable_depth_write() {
   glDepthMask(GL_FALSE);
 }
 
-void Renderer::finalRender(Profiler *profiler, Camera *camera) {
-  profiler->start("Post processing");
-  if (antiAlias) {
-    profiler->start("Anti-aliasing");
-    shaderManager.use("fxaa");
-      shaderManager.current->texture("uSampler", gbuffer.finalTexture, 0);
-      bindScreenAlignedQuad();
-      drawScreenAlignedQuad();
-    shaderManager.current->disable();
-    profiler->end();
+void Renderer::final_render(Camera *camera) {
+  PROFILE("Post processing");
+  if (anti_alias) {
+    PROFILE("Anti-aliasing");
+    shader_manager.use("fxaa");
+      shader_manager.current->texture("uSampler", gbuffer.final_kexture, 0);
+      bind_screen_aligned_quad();
+      draw_screen_aligned_quad();
+    shader_manager.current->disable();
+    PROFILE_END();
   }
 
   if (ssao) {
-    profiler->start("SSAO");
-    shaderManager.use("ssao");
+    PROFILE("SSAO");
+    shader_manager.use("ssao");
 
-    bindScreenAlignedQuad();
+    bind_screen_aligned_quad();
 
-    glm::mat4 invProjection = glm::inverse(camera->viewMatrix);
-    shaderManager.current->setUniform("invProjection", invProjection);
-    shaderManager.current->setUniform("uPMatrix", camera->viewMatrix);
+    glm::mat4 invProjection = glm::inverse(camera->view_matrix);
+    shader_manager.current->set_uniform("invProjection", invProjection);
+    shader_manager.current->set_uniform("uPMatrix", camera->view_matrix);
 
-    glUniform3fv(shaderManager.current->uniforms["kernel[0]"], kernelSize, (const GLfloat *)kernel);
+    glUniform3fv(shader_manager.current->uniforms["kernel[0]"], kernel_size, (const GLfloat *)kernel);
 
-    shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
-    shaderManager.current->texture("uNormal", gbuffer.normalTexture, 1);
-    shaderManager.current->texture("noiseTexture", noiseId, 2);
-    shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
+    shader_manager.current->texture("uDepth", gbuffer.depthTexture, 0);
+    shader_manager.current->texture("uNormal", gbuffer.normalTexture, 1);
+    shader_manager.current->texture("noiseTexture", noise_id, 2);
+    shader_manager.current->texture("diffuseTexture", gbuffer.final_kexture, 4);
 
-    shaderManager.current->setUniform("noiseScale", noiseSize);
-    shaderManager.current->setUniform("uKernelSize", kernelSize);
-    shaderManager.current->setUniform("uRadius", ssaoRadius);
+    shader_manager.current->set_uniform("noiseScale", noise_size);
+    shader_manager.current->set_uniform("uKernelSize", kernel_size);
+    shader_manager.current->set_uniform("uRadius", ssao_radius);
 
-    shaderManager.current->setUniform("zNear", camera->near);
-    shaderManager.current->setUniform("zFar", camera->far);
+    shader_manager.current->set_uniform("zNear", camera->near);
+    shader_manager.current->set_uniform("zFar", camera->far);
 
-    drawScreenAlignedQuad();
+    draw_screen_aligned_quad();
 
-    shaderManager.current->disable();
-    profiler->end();
+    shader_manager.current->disable();
+    PROFILE_END();
   }
 
   if (fog) {
-    profiler->start("Fog");
+    PROFILE("Fog");
 
     glEnable(GL_STENCIL_TEST);
 
     glStencilFunc(GL_EQUAL, 1, 1);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-    shaderManager.use("fog");
-      bindScreenAlignedQuad();
+    shader_manager.use("fog");
+      bind_screen_aligned_quad();
 
-      shaderManager.current->setUniform("zNear", camera->near);
-      shaderManager.current->setUniform("zFar", camera->far);
+      shader_manager.current->set_uniform("zNear", camera->near);
+      shader_manager.current->set_uniform("zFar", camera->far);
 
-      shaderManager.current->setUniform("fogColor", camera->fogColor);
-      shaderManager.current->setUniform("density", camera->fogDensity);
+      shader_manager.current->set_uniform("fogColor", camera->fog_color);
+      shader_manager.current->set_uniform("density", camera->fog_density);
 
-      shaderManager.current->texture("uDepth", gbuffer.depthTexture, 0);
-      shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 4);
+      shader_manager.current->texture("uDepth", gbuffer.depthTexture, 0);
+      shader_manager.current->texture("diffuseTexture", gbuffer.final_kexture, 4);
 
-      drawScreenAlignedQuad();
-    shaderManager.current->disable();
+      draw_screen_aligned_quad();
+    shader_manager.current->disable();
 
     glDisable(GL_STENCIL_TEST);
 
-    profiler->end();
+    PROFILE_END();
   }
 
   if (bloom) {
-    profiler->start("Bloom");
+    PROFILE("Bloom");
 
     glEnable(GL_STENCIL_TEST);
 
     glStencilFunc(GL_EQUAL, 1, 1);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-    shaderManager.use("bloom");
-      bindScreenAlignedQuad();
-      shaderManager.current->texture("diffuseTexture", gbuffer.finalTexture, 0);
-      drawScreenAlignedQuad();
-    shaderManager.current->disable();
+    shader_manager.use("bloom");
+      bind_screen_aligned_quad();
+      shader_manager.current->texture("diffuseTexture", gbuffer.final_kexture, 0);
+      draw_screen_aligned_quad();
+    shader_manager.current->disable();
 
     glDisable(GL_STENCIL_TEST);
 
-    profiler->end();
+    PROFILE_END();
   }
 
-  profiler->start("Final");
+  PROFILE("Final");
   gbuffer.bindForReading();
-  renderFullscreenTexture(gbuffer.finalTexture);
-  profiler->end();
+  render_fullscreen_texture(gbuffer.final_kexture);
+  PROFILE_END();
 
-  profiler->end();
+  PROFILE_END();
 }
 
-void Renderer::bindScreenAlignedQuad() {
-  glBindBuffer(GL_ARRAY_BUFFER, screenAlignedQuad);
-  glVertexAttribPointer(shaderManager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
+void Renderer::bind_screen_aligned_quad() {
+  glBindBuffer(GL_ARRAY_BUFFER, screen_aligned_quad);
+  glVertexAttribPointer(shader_manager.current->attributes["position"], 2, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-void Renderer::drawScreenAlignedQuad() {
+void Renderer::draw_screen_aligned_quad() {
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }

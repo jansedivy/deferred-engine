@@ -14,6 +14,6 @@ class AABB {
     float minZ;
     float maxZ;
 
-    void calculateForMesh(std::vector<float> vertices);
+    void calculate_for_mesh(std::vector<float> vertices);
     AABB translate(glm::vec3 value);
 };

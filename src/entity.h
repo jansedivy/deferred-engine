@@ -1,9 +1,11 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <cmath>
+
 #include "mesh.h"
 #include "texture.h"
-#include <cmath>
+#include "sphere.h"
 
 enum EntityType {
   kPlanet,
@@ -22,9 +24,9 @@ class Entity {
     glm::vec3 scale;
 
     Texture *texture;
-    Texture *normalMap;
+    Texture *normal_map;
     Texture *specularTexture;
-    Texture *alphaTexture;
+    Texture *alpha_texture;
 
     int x;
     int y;
@@ -32,5 +34,5 @@ class Entity {
     AABB aabb;
     EntityType type;
 
-    float getBoundingRadius();
+    Sphere get_bounding_sphere();
 };

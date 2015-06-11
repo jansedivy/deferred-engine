@@ -31,10 +31,10 @@ struct TextureLoading {
 
 struct LoadedMesh {
   Mesh *mesh;
-  std::string textureName;
-  std::string normalName;
-  std::string specularName;
-  std::string alphaName;
+  std::string texture_name;
+  std::string normal_name;
+  std::string specular_name;
+  std::string alpha_name;
 };
 
 class Loader {
@@ -42,14 +42,14 @@ class Loader {
     Texture* loadTexture(TextureLoading textureLoading);
     Texture *loadCubeMap(std::vector<const char*> *faces);
 
-    void addTexture(std::string path);
-    void addCubemap(const char *name, std::vector<const char*> *faces);
-    void loadMesh(const char *path, Renderer *gl);
+    void add_texture(std::string path);
+    void add_cubemap(const char *name, std::vector<const char*> *faces);
+    void load_mesh(const char *path, Renderer *gl);
 
     Texture* get(const char *path);
     std::vector<LoadedMesh>* getModel(const char *path);
 
-    void startLoading();
+    void start_loading();
 
   private:
     unsigned char* loadImageData(const char *path, int *width, int *height);

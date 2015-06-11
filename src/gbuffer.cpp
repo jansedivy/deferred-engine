@@ -38,10 +38,10 @@ void GBuffer::init(int w, int h) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   // final
-  glGenTextures(1, &finalTexture);
-  glBindTexture(GL_TEXTURE_2D, finalTexture);
+  glGenTextures(1, &final_kexture);
+  glBindTexture(GL_TEXTURE_2D, final_kexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + kFinalTexturePosition, GL_TEXTURE_2D, finalTexture, 0);
+  glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + kFinalTexturePosition, GL_TEXTURE_2D, final_kexture, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -65,7 +65,7 @@ void GBuffer::init(int w, int h) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void GBuffer::bindForWriting() {
+void GBuffer::bind_for_writing() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, id);
   glDrawBuffers(arrayCount(buffers), buffers);
 }

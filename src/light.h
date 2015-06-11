@@ -13,15 +13,18 @@ enum LightType {
 
 class Light {
   public:
-    Light();
     LightType type;
     glm::vec3 color;
-    bool isCastingShadow;
-    FrameBuffer frameBuffer;
+    bool isCastingShadow = false;
+    FrameBuffer frame_buffer;
     Camera camera;
 
     glm::vec3 direction;
 
     glm::vec3 position;
-    float radius;
+    float radius = 500;
+    float attenuation = 2;
+
+    bool dynamic = false;
+    bool already_rendered = false;
 };
